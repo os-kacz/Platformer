@@ -40,8 +40,11 @@ int main()
       // "close requested" event: we close the window
       if (event.type == sf::Event::Closed)
         window.close();
+      if (event.type == sf::Event::KeyPressed)
+        game.keyPressed(event);
+      if (event.type == sf::Event::KeyReleased)
+        game.keyReleased(event);
     }
-
 
     //'update' element of the game loop
     game.update(dt);
