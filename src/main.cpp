@@ -49,7 +49,7 @@ int main()
     //'update' element of the game loop
     game.update(dt);
 
-    window.clear(sf::Color::Black);
+    window.clear(sf::Color(40, 60 ,90, 255));
 
     //'render' element of the game loop
     game.render();

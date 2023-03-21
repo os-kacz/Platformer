@@ -14,13 +14,21 @@ Game::~Game()
 
 bool Game::init()
 {
-  player.initPlayer();
-  return true;
+  if (player.initPlayer())
+  {
+    player.getBoundingBox();
+    player.getSprite()->setPosition(
+      500,
+      window.getSize().y - player.getSprite()->getGlobalBounds().height);
+    return true;
+  }
+  else
+    return false;
 }
 
 void Game::update(float dt)
 {
-
+  player.update(dt);
 }
 
 void Game::render()
@@ -30,10 +38,10 @@ void Game::render()
 
 void Game::keyPressed(sf::Event event)
 {
-
+  player.move(event);
 }
 
 void Game::keyReleased(sf::Event event)
 {
-
+  player.stop(event);
 }
