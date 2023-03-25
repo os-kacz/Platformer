@@ -21,6 +21,9 @@ class GameObject
   float top_r_x;
   float top_l_y;
   float bot_l_y;
+ protected:
+  float gravity = 9.08;
+  float velocity = 1.2;
  private:
   sf::Sprite* sprite = nullptr;
 };

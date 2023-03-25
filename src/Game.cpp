@@ -19,7 +19,7 @@ bool Game::init()
     player.getBoundingBox();
     player.getSprite()->setPosition(
       500,
-      window.getSize().y - player.getSprite()->getGlobalBounds().height);
+      window.getSize().y - 500);
     return true;
   }
   else

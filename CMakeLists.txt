@@ -10,7 +10,7 @@ endif()
 
 
 find_package(SFML 2.5.1 COMPONENTS system window graphics network audio)
-set(SOURCE_FILES src/main.cpp src/Game.cpp src/Game.h src/GameObject.cpp src/GameObject.h src/Vector.cpp src/Vector.h src/Collision.cpp src/Collision.h src/Player.cpp src/Player.h)
+set(SOURCE_FILES src/main.cpp src/Game.cpp src/Game.h src/GameObject.cpp src/GameObject.h src/Vector.cpp src/Vector.h src/Collision.cpp src/Collision.h src/Player.cpp src/Player.h src/Platform.cpp src/Platform.h)
 add_executable(PlatformerSFML ${SOURCE_FILES})
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")

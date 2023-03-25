@@ -1,6 +1,6 @@
 <TextureAtlas imagePath="character_zombie_sheetHD.png">
 	<SubTexture name="idle" x="0" y="0" width="192" height="256"/>
-	<SubTexture name="jump" x="192" y="0" width="192" height="256"/>
+	<SubTexture name="checkJump" x="192" y="0" width="192" height="256"/>
 	<SubTexture name="fall" x="384" y="0" width="192" height="256"/>
 	<SubTexture name="duck" x="576" y="0" width="192" height="256"/>
 	<SubTexture name="hit" x="768" y="0" width="192" height="256"/>
