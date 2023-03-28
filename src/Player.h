@@ -17,11 +17,10 @@ class Player : public GameObject
   sf::Texture player_texture;
   sf::RenderWindow& window;
   Collision collision;
-  float speed_multiplier = 4;
-  float jump_height = 200;
+  float speed_multiplier = 2;
+  float jump_power = 6;
   bool on_ground;
   bool is_jumping;
-  float initial_y_pos;
   void checkJump();
   void jumping();
   void falling();

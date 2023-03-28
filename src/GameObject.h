@@ -23,7 +23,7 @@ class GameObject
   float bot_l_y;
  protected:
   float gravity = 9.08;
-  float velocity = 1.2;
+  float velocity = 0.18;
  private:
   sf::Sprite* sprite = nullptr;
 };
