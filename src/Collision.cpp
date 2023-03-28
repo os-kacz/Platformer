@@ -10,41 +10,46 @@ Collision::~Collision()
 
 }
 
-bool Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
+Collision::Type
+Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
 {
   affector.getBoundingBox();
   affected.getBoundingBox();
+  // affector bottom right intersecting affected top left
   if (affector.top_r_x > affected.top_l_x
       && affector.top_r_x < affected.top_r_x
       && affector.bot_l_y > affected.top_l_y
       && affector.bot_l_y < affected.bot_l_y)
   {
-    return true;
+    return Type::TOP;
   }
+  // affector bottom left intersecting affected top right
   if (affector.top_l_x > affected.top_l_x
       && affector.top_l_x < affected.top_r_x
       && affector.bot_l_y > affected.top_l_y
       && affector.bot_l_y < affected.bot_l_y)
   {
-    return true;
+    return Type::BOTTOM;
   }
+  // affector top right intersecting affected bottom left
   if (affector.top_r_x > affected.top_l_x
       && affector.top_r_x < affected.top_r_x
       && affector.top_l_y > affected.top_l_y
       && affector.top_l_y < affected.bot_l_y)
   {
-    return true;
+    return Type::LEFT;
   }
+  // affector top left intersection affected bottom right
   if (affector.top_l_x > affected.top_l_x
       && affector.top_l_x < affected.top_r_x
       && affector.top_l_y > affected.top_l_y
       && affector.top_l_y < affected.bot_l_y)
   {
-    return true;
+    return Type::RIGHT;
   }
   else
   {
-    return false;
+    return Type::NONE;
   }
 }
 

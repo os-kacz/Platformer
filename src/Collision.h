@@ -13,8 +13,8 @@ class Collision
     BOTTOM,
     LEFT,
     RIGHT,
-    NONE,};
-  bool gameobjectCheck(GameObject& affector, GameObject& affected);
+    NONE, };
+  Type gameobjectCheck(GameObject& affector, GameObject& affected);
   Type windowCheck(GameObject& affector, sf::RenderWindow& window);
 };
 
