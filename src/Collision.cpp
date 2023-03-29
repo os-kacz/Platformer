@@ -21,7 +21,10 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
       && affector.bot_l_y > affected.top_l_y
       && affector.bot_l_y < affected.bot_l_y)
   {
-    return Type::TOP;
+    if ((affector.bot_l_y - affected.top_l_y) < (affector.top_r_x - affected.top_l_x))
+      return Type::TOP;
+    else
+      return Type::LEFT;
   }
   // affector bottom left intersecting affected top right
   if (affector.top_l_x > affected.top_l_x
@@ -29,7 +32,10 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
       && affector.bot_l_y > affected.top_l_y
       && affector.bot_l_y < affected.bot_l_y)
   {
-    return Type::BOTTOM;
+    if ((affector.bot_l_y - affected.top_l_y) < (affected.top_r_x - affector.top_l_x))
+      return Type::TOP;
+    else
+      return Type::RIGHT;
   }
   // affector top right intersecting affected bottom left
   if (affector.top_r_x > affected.top_l_x
@@ -37,7 +43,10 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
       && affector.top_l_y > affected.top_l_y
       && affector.top_l_y < affected.bot_l_y)
   {
-    return Type::LEFT;
+    if ((affector.top_l_y - affected.bot_l_y) < (affector.top_r_x - affected.top_l_x))
+      return Type::BOTTOM;
+    else
+      return Type::LEFT;
   }
   // affector top left intersection affected bottom right
   if (affector.top_l_x > affected.top_l_x
@@ -45,7 +54,10 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
       && affector.top_l_y > affected.top_l_y
       && affector.top_l_y < affected.bot_l_y)
   {
-    return Type::RIGHT;
+    if ((affected.bot_l_y - affector.top_l_y) < (affected.top_r_x - affector.top_l_x))
+      return Type::BOTTOM;
+    else
+      return Type::RIGHT;
   }
   else
   {

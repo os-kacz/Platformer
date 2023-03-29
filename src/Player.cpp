@@ -40,7 +40,9 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
-  if (collision.windowCheck(*this,window) == Collision::Type::BOTTOM && !is_jumping)
+  if (collision.windowCheck(*this,window) == Collision::Type::BOTTOM && !is_jumping
+      //|| collision.gameobjectCheck(*this, platform) == Collision::Type::BOTTOM && !is_jumping
+    )
   {
     on_ground = true;
     getSprite()->setPosition(getSprite()->getPosition().x, window.getSize().y - getSprite()->getGlobalBounds().height);
@@ -63,20 +65,16 @@ void Player::checkJump()
 void Player::jumping()
 {
   if (direction.y > 0)
-  {
     is_jumping = false;
-  }
   else
-  {
     direction.y += velocity;
-  }
 }
 
 void Player::falling()
 {
   direction.y += velocity;
-  if (direction.y > 4)
-    direction.y = 4;
+  if (direction.y > terminal_velocity)
+    direction.y = terminal_velocity;
 }
 
 void Player::stop(sf::Event& event)

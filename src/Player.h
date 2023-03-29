@@ -19,6 +19,7 @@ class Player : public GameObject
   Collision collision;
   float speed_multiplier = 2;
   float jump_power = 6;
+  float terminal_velocity = 4;
   bool on_ground;
   bool is_jumping;
   void checkJump();
