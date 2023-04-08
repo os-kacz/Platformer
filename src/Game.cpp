@@ -51,18 +51,18 @@ void Game::playerPlatformCollision()
   {
     case (Collision::Type::TOP):
     {
+      player.on_ground = true;
+      player.direction.y = 0;
       player.getSprite()->setPosition(
         player.top_l_x,
         platform.top_l_y - player.getSprite()->getGlobalBounds().height);
-      player.on_ground = true;
-      player.direction.y = 0;
       break;
     }
     case (Collision::Type::BOTTOM):
     {
       player.is_jumping = false;
-      player.getSprite()->setPosition(player.top_l_x, platform.bot_l_y);
       player.direction.y = 0;
+      player.getSprite()->setPosition(player.top_l_x, platform.bot_l_y);
       break;
     }
     case (Collision::Type::LEFT):
