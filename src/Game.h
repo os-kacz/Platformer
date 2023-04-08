@@ -17,11 +17,14 @@ class Game
   void keyPressed(sf::Event event);
   void keyReleased(sf::Event event);
  private:
+  const static int platform_count = 20;
   sf::RenderWindow& window;
   Player player;
-  Platform platform;
+  Platform* platform[platform_count];
   Collision collision;
-  void playerPlatformCollision();
+  void playerPlatformCollision(Platform& f_platform);
+  void platformSpawnGroups();
+  int platform_accum = 0;
 };
 
 #endif // PLATFORMER_GAME_H

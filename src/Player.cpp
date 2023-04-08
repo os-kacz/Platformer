@@ -34,6 +34,8 @@ void Player::move(sf::Event& event)
   {
     if (event.key.code == sf::Keyboard::Space)
     {
+      getSprite()->setPosition(top_l_x, top_l_y - 1);
+      on_ground = false;
       is_jumping = true;
       direction.y = jump_power * -1;
     }
@@ -42,14 +44,6 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
-  if (collision.windowCheck(*this,window) == Collision::Type::BOTTOM && !is_jumping)
-  {
-    on_ground = true;
-    getSprite()->setPosition(getSprite()->getPosition().x, window.getSize().y - getSprite()->getGlobalBounds().height);
-  }
-  else
-    on_ground = false;
-
   if (!on_ground)
   {
     if (is_jumping)
