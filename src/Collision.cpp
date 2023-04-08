@@ -43,7 +43,7 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
       && affector.top_l_y > affected.top_l_y
       && affector.top_l_y < affected.bot_l_y)
   {
-    if ((affector.top_l_y - affected.bot_l_y) < (affector.top_r_x - affected.top_l_x))
+    if ((affected.bot_l_y - affector.top_l_y) < (affector.top_r_x - affected.top_l_x))
       return Type::BOTTOM;
     else
       return Type::LEFT;

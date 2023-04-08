@@ -13,6 +13,8 @@ class Player : public GameObject
   void update(float dt);
   void move(sf::Event& event);
   void stop(sf::Event& event);
+  bool on_ground;
+  bool is_jumping;
  private:
   sf::Texture player_texture;
   sf::RenderWindow& window;
@@ -20,8 +22,6 @@ class Player : public GameObject
   float speed_multiplier = 2;
   float jump_power = 6;
   float terminal_velocity = 4;
-  bool on_ground;
-  bool is_jumping;
   void checkJump();
   void jumping();
   void falling();

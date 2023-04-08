@@ -9,6 +9,7 @@ Player::~Player(){}
 
 bool Player::initPlayer()
 {
+  getSprite()->setPosition(500,window.getSize().y - 500);
   direction.y = gravity;
   getSprite()->setScale(0.2,0.2);
   return initialiseSprite(player_texture,
@@ -19,6 +20,7 @@ void Player::update(float dt)
 {
   std::cout << direction.y << std::endl;
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
+  getBoundingBox();
   checkJump();
 }
 
@@ -40,18 +42,13 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
-  if (collision.windowCheck(*this,window) == Collision::Type::BOTTOM && !is_jumping
-      //|| collision.gameobjectCheck(*this, platform) == Collision::Type::BOTTOM && !is_jumping
-    )
+  if (collision.windowCheck(*this,window) == Collision::Type::BOTTOM && !is_jumping)
   {
     on_ground = true;
     getSprite()->setPosition(getSprite()->getPosition().x, window.getSize().y - getSprite()->getGlobalBounds().height);
   }
   else
-  {
     on_ground = false;
-    getBoundingBox();
-  }
 
   if (!on_ground)
   {
