@@ -18,7 +18,8 @@ bool Player::initPlayer()
 
 void Player::update(float dt)
 {
-  std::cout << direction.y << std::endl;
+  std::cout << on_ground << std::endl;
+  //std::cout << direction.y << std::endl;
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
   getBoundingBox();
   checkJump();
@@ -35,9 +36,9 @@ void Player::move(sf::Event& event)
     if (event.key.code == sf::Keyboard::Space)
     {
       getSprite()->setPosition(top_l_x, top_l_y - 1);
-      on_ground = false;
-      is_jumping = true;
       direction.y = jump_power * -1;
+      is_jumping = true;
+      on_ground = false;
     }
   }
 }

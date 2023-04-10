@@ -62,7 +62,9 @@ void Game::playerPlatformCollision(Platform& f_platform)
   {
     case (Collision::Type::TOP):
     {
+      std::cout << "TOP" << std::endl;
       player.on_ground = true;
+      player.is_jumping = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(
         player.top_l_x,
@@ -96,7 +98,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::NONE):
     {
-      break;
+      ;
     }
   }
 }
