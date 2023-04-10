@@ -24,6 +24,8 @@ Game::~Game()
 bool Game::init()
 {
   platformSpawnGroups();
+  for (auto & _platform : platform)
+    _platform->initPlatform();
   return player.initPlayer();
 }
 
@@ -32,8 +34,9 @@ void Game::update(float dt)
   player.update(dt);
   for (auto & _platform : platform)
   {
-    _platform->initPlatform();
     playerPlatformCollision(*_platform);
+    if (collision.gameobjectCheck(player, *_platform) == Collision::Type::NONE)
+      player.on_ground = false;
   }
 }
 
@@ -64,7 +67,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
     {
       std::cout << "TOP" << std::endl;
       player.on_ground = true;
-      player.is_jumping = false;
+      //player.is_jumping = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(
         player.top_l_x,
@@ -98,7 +101,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::NONE):
     {
-      ;
+      break;
     }
   }
 }
