@@ -25,6 +25,7 @@ class Player : public GameObject
   void checkJump();
   void jumping();
   void falling();
+  sf::Clock jump_window;
 };
 
 #endif // PLATFORMERSFML_PLAYER_H

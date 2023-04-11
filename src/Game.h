@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Platform.h"
 #include "Collision.h"
+#include "Interface.h"
 
 class Game
 {
@@ -19,12 +20,15 @@ class Game
  private:
   const static int platform_count = 20;
   sf::RenderWindow& window;
+  Interface interface;
   Player player;
   Platform* platform[platform_count];
   Collision collision;
   void playerPlatformCollision(Platform& f_platform);
   void platformSpawnGroups();
   int platform_accum = 0;
+  int no_collision_count = 0;
+  void debugText();
 };
 
 #endif // PLATFORMER_GAME_H

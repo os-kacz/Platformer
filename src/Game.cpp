@@ -2,7 +2,7 @@
 #include <iostream>
 
 Game::Game(sf::RenderWindow& game_window)
-  : window(game_window), player(window)
+  : window(game_window), player(window), interface(window)
 {
   srand(time(NULL));
   for (auto & _platform : platform)
@@ -24,6 +24,7 @@ Game::~Game()
 bool Game::init()
 {
   platformSpawnGroups();
+  interface.initText();
   for (auto & _platform : platform)
     _platform->initPlatform();
   return player.initPlayer();
@@ -32,12 +33,25 @@ bool Game::init()
 void Game::update(float dt)
 {
   player.update(dt);
+  no_collision_count = 0;
   for (auto & _platform : platform)
   {
-    playerPlatformCollision(*_platform);
-    if (collision.gameobjectCheck(player, *_platform) == Collision::Type::NONE)
-      player.on_ground = false;
+    if (collision.gameobjectCheck(player, *_platform) != Collision::Type::NONE)
+    {
+      no_collision_count--;
+      playerPlatformCollision(*_platform);
+    }
+    else
+    {
+      no_collision_count++;
+      if (no_collision_count == platform_count)
+      {
+        interface.collisions.setString("None");
+        player.on_ground = false;
+      }
+    }
   }
+  debugText();
 }
 
 void Game::render()
@@ -45,6 +59,8 @@ void Game::render()
   window.draw(*player.getSprite());
   for (auto & _platform : platform)
     window.draw(*_platform->getSprite());
+  window.draw(interface.debug);
+  window.draw(interface.collisions);
 }
 
 void Game::keyPressed(sf::Event event)
@@ -65,9 +81,8 @@ void Game::playerPlatformCollision(Platform& f_platform)
   {
     case (Collision::Type::TOP):
     {
-      std::cout << "TOP" << std::endl;
+      interface.collisions.setString("Top");
       player.on_ground = true;
-      //player.is_jumping = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(
         player.top_l_x,
@@ -76,6 +91,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::BOTTOM):
     {
+      interface.collisions.setString("Bottom");
       player.is_jumping = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(player.top_l_x, f_platform.bot_l_y);
@@ -83,19 +99,20 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::LEFT):
     {
+      interface.collisions.setString("Left");
       player.is_jumping = false;
       player.getSprite()->setPosition(
         f_platform.top_l_x - player.getSprite()->getGlobalBounds().width,
         player.top_l_y);
-      if (player.direction.x > 0)
+      if (player.direction.x > 0 && player.direction.y > 0)
         player.direction.y = 0.1;
       break;
     }
     case (Collision::Type::RIGHT):
     {
-      player.is_jumping = false;
+      interface.collisions.setString("Right");
       player.getSprite()->setPosition(f_platform.top_r_x, player.top_l_y);
-      if (player.direction.x < 0)
+      if (player.direction.x < 0 && player.direction.y > 0)
         player.direction.y = 0.1;
       break;
     }
@@ -121,4 +138,16 @@ void Game::platformSpawnGroups()
       300);
     platform_accum++;
   }
+}
+void Game::debugText()
+{
+  if (player.on_ground && !player.is_jumping)
+    interface.debug.setString("On Ground\nFalling");
+  else if (player.on_ground && player.is_jumping)
+    interface.debug.setString("On Ground\nJumping");
+  else if (!player.on_ground && !player.is_jumping)
+    interface.debug.setString("In Air\nFalling");
+  else if (!player.on_ground && player.is_jumping)
+    interface.debug.setString("In Air\nJumping");
+  interface.collisions.setPosition(0,interface.debug.getPosition().y + interface.debug.getGlobalBounds().height);
 }
