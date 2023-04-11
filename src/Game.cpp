@@ -124,21 +124,29 @@ void Game::playerPlatformCollision(Platform& f_platform)
 }
 void Game::platformSpawnGroups()
 {
-  for (int first = 0; first < 10; first++)
+  for (int first = 0; first < 20; first++)
   {
     platform[platform_accum]->getSprite()->setPosition(
       0 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * first+1),
       (window.getSize().y - platform[platform_accum]->getSprite()->getGlobalBounds().height));
     platform_accum++;
   }
-  for (int second = 0; second < 2; second++)
+  for (int second = 0; second < 4; second++)
   {
     platform[platform_accum]->getSprite()->setPosition(
       0 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * second+1),
+      500);
+    platform_accum++;
+  }
+  for (int third = 0; third < 6; third++)
+  {
+    platform[platform_accum]->getSprite()->setPosition(
+      400 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * third+1),
       300);
     platform_accum++;
   }
 }
+
 void Game::debugText()
 {
   if (player.on_ground && !player.is_jumping)

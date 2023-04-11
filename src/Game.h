@@ -18,7 +18,7 @@ class Game
   void keyPressed(sf::Event event);
   void keyReleased(sf::Event event);
  private:
-  const static int platform_count = 20;
+  const static int platform_count = 30;
   sf::RenderWindow& window;
   Interface interface;
   Player player;

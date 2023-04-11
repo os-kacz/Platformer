@@ -9,7 +9,7 @@ Platform::~Platform() {}
 
 bool Platform::initPlatform()
 {
-  getSprite()->setScale(6,6);
+  getSprite()->setScale(3,3);
   return initialiseSprite(texture, "Data/Images/kenney_pixelplatformer/Tiles/tile_0000.png");
 }
 
