@@ -33,12 +33,12 @@ void Game::update(float dt)
 {
   player.update(dt);
   no_collision_count = 0;
-  for (auto & _platform : platform)
+  for (int i = 0; i < tile_count; i++)
   {
-    if (collision.gameobjectCheck(player, *_platform) != Collision::Type::NONE)
+    if (collision.gameobjectCheck(player, *platform[i]) != Collision::Type::NONE)
     {
       no_collision_count--;
-      playerPlatformCollision(*_platform);
+      playerPlatformCollision(*platform[i]);
     }
     else
     {
@@ -56,8 +56,8 @@ void Game::update(float dt)
 void Game::render()
 {
   window.draw(*player.getSprite());
-  for (auto & _platform : platform)
-    window.draw(*_platform->getSprite());
+  for (int i = 0; i < tile_count; i++)
+    window.draw(*platform[i]->getSprite());
   window.draw(interface.debug);
   window.draw(interface.collisions);
 }
@@ -181,6 +181,7 @@ bool Game::calibratePunchCard()
   }
   return true;
 }
+
 int Game::countTiles()
 {
   if (calibratePunchCard())
@@ -195,11 +196,20 @@ int Game::countTiles()
         if (tile_type == sf::Color::Black)
         {
           tile_accumulator++;
+          // function to setPosition of the platform ONLY when spawnPlatforms is called
+          // figure it out gamer
         }
       }
     }
     return tile_accumulator;
   }
   else
+  {
     std::cout << "level punch card failure\n";
+    return platform_count;
+  }
+}
+void Game::spawnPlatforms()
+{
+  // make it do the thing
 }

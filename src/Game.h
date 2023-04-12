@@ -34,6 +34,7 @@ class Game
   int no_collision_count = 0;
   void debugText();
   bool calibratePunchCard();
+  void spawnPlatforms();
   int countTiles();
 };
 
