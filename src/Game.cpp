@@ -23,6 +23,7 @@ Game::~Game()
 
 bool Game::init()
 {
+  generateLevel();
   platformSpawnGroups();
   interface.initText();
   for (auto & _platform : platform)
@@ -145,6 +146,13 @@ void Game::platformSpawnGroups()
       300);
     platform_accum++;
   }
+  for (int fourth = 0; fourth < 13; fourth++)
+  {
+    platform[platform_accum]->getSprite()->setPosition(
+      0,
+      (platform[platform_accum]->getSprite()->getGlobalBounds().height * fourth+1));
+    platform_accum++;
+  }
 }
 
 void Game::debugText()
@@ -158,4 +166,28 @@ void Game::debugText()
   else if (!player.on_ground && player.is_jumping)
     interface.debug.setString("In Air\nJumping");
   interface.collisions.setPosition(0,interface.debug.getPosition().y + interface.debug.getGlobalBounds().height);
+}
+bool Game::calibrateLevelPunchCard()
+{
+  level.loadFromFile("Data/Images/levelone.png");
+  for (int i = 0; i < 5; i++)
+  {
+    sf::Color color = level.getPixel(i,13);
+    if (color != sf::Color::Red
+        && color != sf::Color::Yellow
+        && color != sf::Color::Green
+        && color != sf::Color::White
+        && color != sf::Color::Black)
+      return false;
+  }
+  return true;
+}
+void Game::generateLevel()
+{
+  if (calibrateLevelPunchCard())
+  {
+    std::cout << "level punch card calibrated";
+  }
+  else
+    std::cout << "level punch card failure";
 }

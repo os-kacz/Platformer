@@ -18,8 +18,10 @@ class Game
   void keyPressed(sf::Event event);
   void keyReleased(sf::Event event);
  private:
-  const static int platform_count = 30;
+
+  const static int platform_count = 50;
   sf::RenderWindow& window;
+  sf::Image level;
   Interface interface;
   Player player;
   Platform* platform[platform_count];
@@ -29,6 +31,8 @@ class Game
   int platform_accum = 0;
   int no_collision_count = 0;
   void debugText();
+  bool calibrateLevelPunchCard();
+  void generateLevel();
 };
 
 #endif // PLATFORMER_GAME_H
