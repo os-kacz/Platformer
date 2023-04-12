@@ -5,10 +5,11 @@ Game::Game(sf::RenderWindow& game_window)
   : window(game_window), player(window), interface(window)
 {
   srand(time(NULL));
-  for (auto & _platform : platform)
+  tile_count = countTiles();
+  for (int i = 0; i < tile_count; i++)
   {
-    _platform = new Platform;
-    _platform->initPlatform();
+    platform[i] = new Platform;
+    platform[i]->initPlatform();
   }
 }
 
@@ -23,11 +24,8 @@ Game::~Game()
 
 bool Game::init()
 {
-  generateLevel();
-  platformSpawnGroups();
+  //platformSpawnGroups();
   interface.initText();
-  for (auto & _platform : platform)
-    _platform->initPlatform();
   return player.initPlayer();
 }
 
@@ -167,7 +165,8 @@ void Game::debugText()
     interface.debug.setString("In Air\nJumping");
   interface.collisions.setPosition(0,interface.debug.getPosition().y + interface.debug.getGlobalBounds().height);
 }
-bool Game::calibrateLevelPunchCard()
+
+bool Game::calibratePunchCard()
 {
   level.loadFromFile("Data/Images/levelone.png");
   for (int i = 0; i < 5; i++)
@@ -182,12 +181,25 @@ bool Game::calibrateLevelPunchCard()
   }
   return true;
 }
-void Game::generateLevel()
+int Game::countTiles()
 {
-  if (calibrateLevelPunchCard())
+  if (calibratePunchCard())
   {
-    std::cout << "level punch card calibrated";
+    std::cout << "level punch card calibrated\n";
+    int tile_accumulator = 0;
+    for (int x_gen = 0; x_gen < tile_column; x_gen++)
+    {
+      for (int y_gen = 0; y_gen < tile_row; y_gen++)
+      {
+        sf::Color tile_type = level.getPixel(tile_column, tile_row);
+        if (tile_type == sf::Color::Black)
+        {
+          tile_accumulator++;
+        }
+      }
+    }
+    return tile_accumulator;
   }
   else
-    std::cout << "level punch card failure";
+    std::cout << "level punch card failure\n";
 }
