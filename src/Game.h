@@ -22,6 +22,7 @@ class Game
   const static int tile_row = 13;
   const static int platform_count = tile_column * tile_row;
   int tile_count = 0;
+  int invisible_tiles = 0;
   sf::RenderWindow& window;
   sf::Image level;
   Interface interface;
@@ -29,8 +30,6 @@ class Game
   Platform* platform[platform_count];
   Collision collision;
   void playerPlatformCollision(Platform& f_platform);
-  void platformSpawnGroups();
-  int platform_accum = 0;
   int no_collision_count = 0;
   void debugText();
   bool calibratePunchCard();

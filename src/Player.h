@@ -19,12 +19,13 @@ class Player : public GameObject
   sf::Texture player_texture;
   sf::RenderWindow& window;
   Collision collision;
-  float speed_multiplier = 2;
-  float jump_power = 5;
+  float speed_multiplier = 1.4;
+  float jump_power = 4;
   float terminal_velocity = 4;
   void checkJump();
   void jumping();
   void falling();
+  void windowCollision();
   sf::Clock jump_window;
 };
 

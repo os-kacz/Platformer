@@ -20,6 +20,7 @@ void Player::update(float dt)
 {
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
   getBoundingBox();
+  windowCollision();
   checkJump();
 }
 
@@ -43,7 +44,6 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
-  std::cout << jump_window.getElapsedTime().asSeconds() << std::endl;
   if (jump_window.getElapsedTime().asSeconds() > 0.1 && on_ground)
     jump_window.restart();
 
@@ -69,6 +69,36 @@ void Player::falling()
   direction.y += velocity;
   if (direction.y > terminal_velocity)
     direction.y = terminal_velocity;
+}
+
+void Player::windowCollision()
+{
+  switch (collision.windowCheck(*this, window))
+  {
+    case Collision::Type::TOP:
+    {
+      is_jumping = false;
+      getSprite()->setPosition(top_l_x,0);
+      direction.y = 0;
+      break;
+    }
+    case Collision::Type::BOTTOM:
+    {
+      break;
+    }
+    case Collision::Type::LEFT:
+    {
+      break;
+    }
+    case Collision::Type::RIGHT:
+    {
+      break;
+    }
+    case Collision::Type::NONE:
+    {
+      break;
+    }
+  }
 }
 
 void Player::stop(sf::Event& event)

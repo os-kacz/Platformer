@@ -24,7 +24,7 @@ Game::~Game()
 
 bool Game::init()
 {
-  //platformSpawnGroups();
+  spawnPlatforms();
   interface.initText();
   return player.initPlayer();
 }
@@ -35,18 +35,23 @@ void Game::update(float dt)
   no_collision_count = 0;
   for (int i = 0; i < tile_count; i++)
   {
-    if (collision.gameobjectCheck(player, *platform[i]) != Collision::Type::NONE)
+    if (platform[i]->visible)
     {
-      no_collision_count--;
-      playerPlatformCollision(*platform[i]);
-    }
-    else
-    {
-      no_collision_count++;
-      if (no_collision_count == platform_count)
+      if (collision.gameobjectCheck(player, *platform[i]) != Collision::Type::NONE)
       {
-        interface.collisions.setString("None");
-        player.on_ground = false;
+        no_collision_count--;
+        playerPlatformCollision(*platform[i]);
+      }
+      else if (
+        collision.gameobjectCheck(player, *platform[i]) ==
+        Collision::Type::NONE)
+      {
+        no_collision_count++;
+        if (no_collision_count == tile_count - invisible_tiles)
+        {
+          interface.collisions.setString("None");
+          player.on_ground = false;
+        }
       }
     }
   }
@@ -55,9 +60,12 @@ void Game::update(float dt)
 
 void Game::render()
 {
-  window.draw(*player.getSprite());
   for (int i = 0; i < tile_count; i++)
-    window.draw(*platform[i]->getSprite());
+  {
+    if (platform[i]->visible)
+      window.draw(*platform[i]->getSprite());
+  }
+  window.draw(*player.getSprite());
   window.draw(interface.debug);
   window.draw(interface.collisions);
 }
@@ -65,6 +73,8 @@ void Game::render()
 void Game::keyPressed(sf::Event event)
 {
   player.move(event);
+  if (event.key.code == sf::Keyboard::Escape)
+    window.close();
 }
 
 void Game::keyReleased(sf::Event event)
@@ -80,18 +90,21 @@ void Game::playerPlatformCollision(Platform& f_platform)
   {
     case (Collision::Type::TOP):
     {
-      interface.collisions.setString("Top");
-      player.on_ground = true;
-      player.direction.y = 0;
-      player.getSprite()->setPosition(
-        player.top_l_x,
-        f_platform.top_l_y - player.getSprite()->getGlobalBounds().height);
+      if (!player.on_ground)
+      {
+        interface.collisions.setString("Top");
+        player.on_ground = true;
+        player.direction.y = 0;
+        player.getSprite()->setPosition(
+          player.top_l_x,
+          f_platform.top_l_y - player.getSprite()->getGlobalBounds().height);
+      }
       break;
     }
     case (Collision::Type::BOTTOM):
     {
       interface.collisions.setString("Bottom");
-      player.is_jumping = false;
+      player.is_jumping  = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(player.top_l_x, f_platform.bot_l_y);
       break;
@@ -99,12 +112,14 @@ void Game::playerPlatformCollision(Platform& f_platform)
     case (Collision::Type::LEFT):
     {
       interface.collisions.setString("Left");
-      player.is_jumping = false;
       player.getSprite()->setPosition(
         f_platform.top_l_x - player.getSprite()->getGlobalBounds().width,
         player.top_l_y);
       if (player.direction.x > 0 && player.direction.y > 0)
-        player.direction.y = 0.1;
+      {
+        player.is_jumping  = false;
+        player.direction.y = 0.3;
+      }
       break;
     }
     case (Collision::Type::RIGHT):
@@ -112,44 +127,16 @@ void Game::playerPlatformCollision(Platform& f_platform)
       interface.collisions.setString("Right");
       player.getSprite()->setPosition(f_platform.top_r_x, player.top_l_y);
       if (player.direction.x < 0 && player.direction.y > 0)
-        player.direction.y = 0.1;
+      {
+        player.is_jumping  = false;
+        player.direction.y = 0.3;
+      }
       break;
     }
     case (Collision::Type::NONE):
     {
       break;
     }
-  }
-}
-void Game::platformSpawnGroups()
-{
-  for (int first = 0; first < 20; first++)
-  {
-    platform[platform_accum]->getSprite()->setPosition(
-      0 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * first+1),
-      (window.getSize().y - platform[platform_accum]->getSprite()->getGlobalBounds().height));
-    platform_accum++;
-  }
-  for (int second = 0; second < 4; second++)
-  {
-    platform[platform_accum]->getSprite()->setPosition(
-      0 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * second+1),
-      500);
-    platform_accum++;
-  }
-  for (int third = 0; third < 6; third++)
-  {
-    platform[platform_accum]->getSprite()->setPosition(
-      400 + (platform[platform_accum]->getSprite()->getGlobalBounds().width * third+1),
-      300);
-    platform_accum++;
-  }
-  for (int fourth = 0; fourth < 13; fourth++)
-  {
-    platform[platform_accum]->getSprite()->setPosition(
-      0,
-      (platform[platform_accum]->getSprite()->getGlobalBounds().height * fourth+1));
-    platform_accum++;
   }
 }
 
@@ -169,14 +156,15 @@ void Game::debugText()
 bool Game::calibratePunchCard()
 {
   level.loadFromFile("Data/Images/levelone.png");
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 6; i++)
   {
     sf::Color color = level.getPixel(i,13);
     if (color != sf::Color::Red
         && color != sf::Color::Yellow
         && color != sf::Color::Green
         && color != sf::Color::White
-        && color != sf::Color::Black)
+        && color != sf::Color::Black
+        && color != sf::Color::Blue)
       return false;
   }
   return true;
@@ -192,12 +180,13 @@ int Game::countTiles()
     {
       for (int y_gen = 0; y_gen < tile_row; y_gen++)
       {
-        sf::Color tile_type = level.getPixel(tile_column, tile_row);
+        sf::Color tile_type = level.getPixel(x_gen, y_gen);
         if (tile_type == sf::Color::Black)
+          tile_accumulator++;
+        if (tile_type == sf::Color::Blue)
         {
           tile_accumulator++;
-          // function to setPosition of the platform ONLY when spawnPlatforms is called
-          // figure it out gamer
+          invisible_tiles++;
         }
       }
     }
@@ -209,7 +198,32 @@ int Game::countTiles()
     return platform_count;
   }
 }
+
 void Game::spawnPlatforms()
 {
-  // make it do the thing
+  int tile_accumulator = 0;
+  for (int x_gen = 0; x_gen < tile_column; x_gen++)
+  {
+    for (int y_gen = 0; y_gen < tile_row; y_gen++)
+    {
+      sf::Color tile_type = level.getPixel(x_gen, y_gen);
+      if (tile_type == sf::Color::Black)
+      {
+        std::cout << "placing platform\n";
+        platform[tile_accumulator]->getSprite()->setPosition(
+          x_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().height);
+        tile_accumulator++;
+      }
+      if (tile_type == sf::Color::Blue)
+      {
+        std::cout << "detected spawn at " << tile_accumulator << std::endl;
+        platform[tile_accumulator]->getSprite()->setPosition(
+          x_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().height);
+        platform[tile_accumulator]->visible = false;
+        tile_accumulator++;
+      }
+    }
+  }
 }

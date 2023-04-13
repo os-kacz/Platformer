@@ -70,26 +70,17 @@ Collision::windowCheck(GameObject& affector, sf::RenderWindow& window)
 {
   affector.getBoundingBox();
   if (affector.top_r_x > window.getSize().x)
-  {
     return Type::RIGHT;
-  }
 
   if (affector.top_l_x < 0)
-  {
     return Type::LEFT;
-  }
 
   if (affector.bot_l_y > window.getSize().y)
-  {
     return Type::BOTTOM;
-  }
 
   if (affector.top_l_y < 0)
-  {
     return Type::TOP;
-  }
+
   else
-  {
     return Type::NONE;
-  }
 }
