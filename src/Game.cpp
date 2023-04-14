@@ -24,14 +24,19 @@ Game::~Game()
 
 bool Game::init()
 {
-  spawnPlatforms();
-  interface.initText();
-  return player.initPlayer();
+  if (interface.initText() && player.initPlayer())
+  {
+    spawnPlatforms();
+    return true;
+  }
+  else
+    return false;
 }
 
 void Game::update(float dt)
 {
   player.update(dt);
+  windowCollision();
   no_collision_count = 0;
   for (int i = 0; i < tile_count; i++)
   {
@@ -140,6 +145,39 @@ void Game::playerPlatformCollision(Platform& f_platform)
   }
 }
 
+void Game::windowCollision()
+{
+  switch (collision.windowCheck(player, window))
+  {
+    case Collision::Type::TOP:
+    {
+      player.is_jumping = false;
+      player.getSprite()->setPosition(player.top_l_x,0);
+      player.direction.y = 0;
+      break;
+    }
+    case Collision::Type::BOTTOM:
+    {
+      player.getSprite()->setPosition(platform[spawn_tile]->getSprite()->getPosition().x,platform[spawn_tile]->getSprite()->getPosition().y);
+      break;
+    }
+    case Collision::Type::LEFT:
+    {
+      player.getSprite()->setPosition(0,player.top_l_y);
+      break;
+    }
+    case Collision::Type::RIGHT:
+    {
+      player.getSprite()->setPosition(window.getSize().x - player.getSprite()->getGlobalBounds().width, player.top_l_y);
+      break;
+    }
+    case Collision::Type::NONE:
+    {
+      break;
+    }
+  }
+}
+
 void Game::debugText()
 {
   if (player.on_ground && !player.is_jumping)
@@ -201,7 +239,7 @@ int Game::countTiles()
 
 void Game::spawnPlatforms()
 {
-  int tile_accumulator = 0;
+  int tile_accum = 0;
   for (int x_gen = 0; x_gen < tile_column; x_gen++)
   {
     for (int y_gen = 0; y_gen < tile_row; y_gen++)
@@ -210,19 +248,23 @@ void Game::spawnPlatforms()
       if (tile_type == sf::Color::Black)
       {
         std::cout << "placing platform\n";
-        platform[tile_accumulator]->getSprite()->setPosition(
-          x_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().width,
-          y_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().height);
-        tile_accumulator++;
+        platform[tile_accum]->getSprite()->setPosition(
+          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
+        tile_accum++;
       }
       if (tile_type == sf::Color::Blue)
       {
-        std::cout << "detected spawn at " << tile_accumulator << std::endl;
-        platform[tile_accumulator]->getSprite()->setPosition(
-          x_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().width,
-          y_gen * platform[tile_accumulator]->getSprite()->getGlobalBounds().height);
-        platform[tile_accumulator]->visible = false;
-        tile_accumulator++;
+        std::cout << "detected spawn at " << tile_accum << std::endl;
+        platform[tile_accum]->getSprite()->setPosition(
+          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
+        platform[tile_accum]->visible = false;
+        player.getSprite()->setPosition(
+          platform[tile_accum]->getSprite()->getPosition().x,
+          platform[tile_accum]->getSprite()->getPosition().y);
+        spawn_tile = tile_accum;
+        tile_accum++;
       }
     }
   }

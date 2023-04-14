@@ -30,10 +30,12 @@ class Game
   Platform* platform[platform_count];
   Collision collision;
   void playerPlatformCollision(Platform& f_platform);
+  void windowCollision();
   int no_collision_count = 0;
   void debugText();
   bool calibratePunchCard();
   void spawnPlatforms();
+  int spawn_tile;
   int countTiles();
 };
 
