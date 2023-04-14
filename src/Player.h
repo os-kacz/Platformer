@@ -25,7 +25,6 @@ class Player : public GameObject
   void checkJump();
   void jumping();
   void falling();
-  void windowCollision();
   sf::Clock jump_window;
 };
 

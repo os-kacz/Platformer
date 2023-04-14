@@ -33,7 +33,7 @@ void Player::move(sf::Event& event)
   {
     if (event.key.code == sf::Keyboard::Space)
     {
-      getSprite()->setPosition(top_l_x, top_l_y - 1);
+      getSprite()->setPosition(top_l_x, top_l_y - 2);
       direction.y = jump_power * -1;
       is_jumping = true;
       on_ground = false;
@@ -43,6 +43,7 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
+  std::cout << jump_window.getElapsedTime().asSeconds() << std::endl;
   if (jump_window.getElapsedTime().asSeconds() > 0.1 && on_ground)
     jump_window.restart();
 

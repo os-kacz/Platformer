@@ -9,7 +9,7 @@ class Platform : public GameObject
   Platform();
   ~Platform();
   bool initPlatform();
-  void update();
+  bool walkable = true;
  private:
   sf::Texture texture;
 };
