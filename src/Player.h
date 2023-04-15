@@ -3,11 +3,12 @@
 
 #include "GameObject.h"
 #include "Collision.h"
+#include "Interface.h"
 
 class Player : public GameObject
 {
  public:
-  Player(sf::RenderWindow& window);
+  Player(sf::RenderWindow& game_window, Interface& debug);
   ~Player();
   bool initPlayer();
   void update(float dt);
@@ -19,6 +20,7 @@ class Player : public GameObject
   sf::Texture player_texture;
   sf::RenderWindow& window;
   Collision collision;
+  Interface& debug;
   float speed_multiplier = 1.4;
   float jump_power = 5;
   float terminal_velocity = 4;

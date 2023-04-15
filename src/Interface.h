@@ -12,6 +12,7 @@ class Interface
   bool initText();
   sf::Text debug;
   sf::Text collisions;
+  sf::Text jump_window;
  private:
   sf::RenderWindow& window;
   sf::Font font;

@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(sf::RenderWindow& game_window) : window(game_window)
+Player::Player(sf::RenderWindow& game_window, Interface& debug) : window(game_window), debug(debug)
 {
   speed *= speed_multiplier;
 }
@@ -43,7 +43,8 @@ void Player::move(sf::Event& event)
 
 void Player::checkJump()
 {
-  std::cout << jump_window.getElapsedTime().asSeconds() << std::endl;
+  debug.jump_window.setPosition(0,debug.collisions.getPosition().y + debug.collisions.getGlobalBounds().height + 12);
+  debug.jump_window.setString(std::to_string(jump_window.getElapsedTime().asSeconds()));
   if (jump_window.getElapsedTime().asSeconds() > 0.1 && on_ground)
     jump_window.restart();
 
