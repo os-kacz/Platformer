@@ -29,7 +29,7 @@ void Player::move(sf::Event& event)
     direction.x = -2;
   if (event.key.code == sf::Keyboard::D)
     direction.x = 2;
-  if (jump_window.getElapsedTime().asSeconds() <= 0.15 && !is_jumping)
+  if (jump_window.getElapsedTime().asSeconds() < 0.15 && !is_jumping)
   {
     if (event.key.code == sf::Keyboard::Space)
     {

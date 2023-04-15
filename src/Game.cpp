@@ -24,87 +24,13 @@ Game::~Game()
 
 bool Game::init()
 {
-  if (interface.initText() && player.initPlayer() && hazard.initHazard())
+  if (interface.initText() && player.initPlayer()/* && hazard.initHazard()*/)
   {
     generateLevel();
     return true;
   }
   else
     return false;
-}
-
-int Game::countTiles()
-{
-  if (calibratePunchCard())
-  {
-    std::cout << "level punch card calibrated\n";
-    int tile_accumulator = 0;
-    for (int x_gen = 0; x_gen < tile_column; x_gen++)
-    {
-      for (int y_gen = 0; y_gen < tile_row; y_gen++)
-      {
-        sf::Color tile_type = level.getPixel(x_gen, y_gen);
-        if (tile_type == sf::Color::Black)
-          tile_accumulator++;
-        if (tile_type == sf::Color::Blue
-            || tile_type == sf::Color::Red
-            || tile_type == sf::Color::Yellow
-            || tile_type == sf::Color::Green)
-        {
-          tile_accumulator++;
-          unwalkable_tiles++;
-        }
-      }
-    }
-    std::cout << tile_accumulator << std::endl;
-    std::cout << unwalkable_tiles << std::endl;
-    return tile_accumulator;
-  }
-  else
-  {
-    std::cout << "level punch card failure\n";
-    return platform_count;
-  }
-}
-
-void Game::generateLevel()
-{
-  int tile_accum = 0;
-  for (int x_gen = 0; x_gen < tile_column; x_gen++)
-  {
-    for (int y_gen = 0; y_gen < tile_row; y_gen++)
-    {
-      sf::Color tile_type = level.getPixel(x_gen, y_gen);
-      if (tile_type == sf::Color::Black)
-      {
-        platform[tile_accum]->getSprite()->setPosition(
-          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
-          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
-        tile_accum++;
-      }
-      if (tile_type == sf::Color::Blue)
-      {
-        platform[tile_accum]->getSprite()->setPosition(
-          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
-          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
-        platform[tile_accum]->visible = false;
-        platform[tile_accum]->walkable = false;
-        player.getSprite()->setPosition(
-          platform[tile_accum]->getSprite()->getPosition().x,
-          platform[tile_accum]->getSprite()->getPosition().y - 2);
-        spawn_tile = tile_accum;
-        tile_accum++;
-      }
-      if (tile_type == sf::Color::Red)
-      {
-        platform[tile_accum]->getSprite()->setPosition(
-          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
-          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
-        platform[tile_accum]->walkable = false;
-        tile_accum++;
-      }
-    }
-  }
 }
 
 void Game::update(float dt)
@@ -114,7 +40,7 @@ void Game::update(float dt)
   int no_collision_count = 0;
   for (int i = 0; i < tile_count; i++)
   {
-    if (platform[i]->visible && platform[i]->walkable)
+    if (platform[i]->walkable)
     {
       if (collision.gameobjectCheck(
             player,*platform[i]) != Collision::Type::NONE)
@@ -142,7 +68,7 @@ void Game::render()
 {
   for (int i = 0; i < tile_count; i++)
   {
-    if (platform[i]->visible)
+    if (platform[i]->walkable)
       window.draw(*platform[i]->getSprite());
   }
   window.draw(*player.getSprite());
@@ -285,4 +211,78 @@ bool Game::calibratePunchCard()
       return false;
   }
   return true;
+}
+
+int Game::countTiles()
+{
+  if (calibratePunchCard())
+  {
+    std::cout << "level punch card calibrated\n";
+    int tile_accumulator = 0;
+    for (int x_gen = 0; x_gen < tile_column; x_gen++)
+    {
+      for (int y_gen = 0; y_gen < tile_row; y_gen++)
+      {
+        sf::Color tile_type = level.getPixel(x_gen, y_gen);
+        if (tile_type == sf::Color::Black)
+          tile_accumulator++;
+        if (tile_type == sf::Color::Blue
+            || tile_type == sf::Color::Red
+            //|| tile_type == sf::Color::Yellow
+            //|| tile_type == sf::Color::Green
+            )
+        {
+          tile_accumulator++;
+          unwalkable_tiles++;
+        }
+      }
+    }
+//    std::cout << tile_accumulator << std::endl;
+//    std::cout << unwalkable_tiles << std::endl;
+    return tile_accumulator;
+  }
+  else
+  {
+    std::cout << "level punch card failure\n";
+    return platform_count;
+  }
+}
+
+void Game::generateLevel()
+{
+  int tile_accum = 0;
+  for (int x_gen = 0; x_gen < tile_column; x_gen++)
+  {
+    for (int y_gen = 0; y_gen < tile_row; y_gen++)
+    {
+      sf::Color tile_type = level.getPixel(x_gen, y_gen);
+      if (tile_type == sf::Color::Black)
+      {
+        platform[tile_accum]->getSprite()->setPosition(
+          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
+        tile_accum++;
+      }
+      if (tile_type == sf::Color::Blue)
+      {
+        platform[tile_accum]->getSprite()->setPosition(
+          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
+        platform[tile_accum]->walkable = false;
+        player.getSprite()->setPosition(
+          platform[tile_accum]->getSprite()->getPosition().x,
+          platform[tile_accum]->getSprite()->getPosition().y - 2);
+        spawn_tile = tile_accum;
+        tile_accum++;
+      }
+      if (tile_type == sf::Color::Red)
+      {
+        platform[tile_accum]->getSprite()->setPosition(
+          x_gen * platform[tile_accum]->getSprite()->getGlobalBounds().width,
+          y_gen * platform[tile_accum]->getSprite()->getGlobalBounds().height);
+        platform[tile_accum]->walkable = false;
+        tile_accum++;
+      }
+    }
+  }
 }
