@@ -9,8 +9,9 @@ class Collectible : public GameObject
  public:
   Collectible();
   ~Collectible();
+  bool initCollectible();
  private:
-
+  sf::Texture texture;
 };
 
 #endif // PLATFORMERSFML_COLLECTIBLE_H

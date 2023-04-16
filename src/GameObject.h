@@ -16,7 +16,7 @@ class GameObject
   int health;
   float speed = 100;
   Vector direction = Vector(0, 0);
-  void getBoundingBox();
+  void updateBoundingBox();
   float top_l_x;
   float top_r_x;
   float top_l_y;

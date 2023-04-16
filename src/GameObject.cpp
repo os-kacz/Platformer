@@ -29,7 +29,7 @@ sf::Sprite* GameObject::getSprite()
   return sprite;
 }
 
-void GameObject::getBoundingBox()
+void GameObject::updateBoundingBox()
 {
   top_l_x = sprite->getPosition().x;
   top_r_x = top_l_x + sprite->getGlobalBounds().width;

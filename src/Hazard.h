@@ -11,8 +11,12 @@ class Hazard : public GameObject
   ~Hazard();
   bool initHazard();
   void update(GameObject& affector);
+  void initLeftTexture();
+  bool on_left;
+  bool on_ground = false;
  private:
   sf::Texture texture;
+  sf::Texture texture_left;
 };
 
 #endif // PLATFORMERSFML_HAZARD_H

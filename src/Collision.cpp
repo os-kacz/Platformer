@@ -13,8 +13,8 @@ Collision::~Collision()
 Collision::Type
 Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
 {
-  affector.getBoundingBox();
-  affected.getBoundingBox();
+  affector.updateBoundingBox();
+  affected.updateBoundingBox();
   // affector bottom right intersecting affected top left
   if (affector.top_r_x > affected.top_l_x
       && affector.top_r_x < affected.top_r_x
@@ -68,7 +68,7 @@ Collision::gameobjectCheck(GameObject& affector, GameObject& affected)
 Collision::Type
 Collision::windowCheck(GameObject& affector, sf::RenderWindow& window)
 {
-  affector.getBoundingBox();
+  affector.updateBoundingBox();
   if (affector.top_r_x > window.getSize().x)
     return Type::RIGHT;
 

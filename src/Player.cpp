@@ -19,7 +19,7 @@ bool Player::initPlayer()
 void Player::update(float dt)
 {
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
-  getBoundingBox();
+  updateBoundingBox();
   checkJump();
 }
 
