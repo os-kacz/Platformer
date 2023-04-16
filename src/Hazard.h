@@ -12,7 +12,7 @@ class Hazard : public GameObject
   bool initHazard();
   void update(GameObject& affector);
   void initLeftTexture();
-  bool on_left;
+  bool facing_left;
   bool on_ground = false;
  private:
   sf::Texture texture;

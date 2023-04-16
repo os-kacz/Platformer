@@ -37,6 +37,8 @@ class Game
   void generateLevel();
   void countTiles();
   int spawn_tile;
+  struct CollisionCount{int none_colliding; int uninteractible;} ;
+  CollisionCount platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible);
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
   void windowCollision();

@@ -35,11 +35,18 @@ Game::~Game()
     delete _hazard;
     _hazard = nullptr;
   }
+  for (auto & _collectible : collectible)
+  {
+    delete _collectible;
+    _collectible = nullptr;
+  }
 }
 
 bool Game::init()
 {
-  std::cout << "hazards: " << hazard_count << std::endl;
+  std::cout << "tiles placed: " << walkable_tiles << "/260" << std::endl;
+  std::cout << "hazards: " << hazard_count << "/20" <<std::endl;
+  std::cout << "collectibles: " << collectible_count << "/10" << std::endl;
   if (interface.initText() && player.initPlayer())
   {
     generateLevel();
@@ -57,31 +64,20 @@ void Game::update(float dt)
   int invisible_tiles = 0;
   for (int i = 0; i < walkable_tiles; i++)
   {
-    if (platform[i]->visible)
-    {
-      if (collision.gameobjectCheck(player, *platform[i]) != Collision::Type::NONE)
-      {
-        no_collision_count--;
-        playerPlatformCollision(*platform[i]);
-      }
-      else if (
-        collision.gameobjectCheck(player, *platform[i]) ==
-        Collision::Type::NONE)
-      {
-        no_collision_count++;
-        if (no_collision_count == walkable_tiles - invisible_tiles)
-        {
-          interface.collisions.setString("None");
-          player.on_ground = false;
-        }
-      }
-    }
-    else if (!platform[i]->visible)
-      invisible_tiles++;
+    CollisionCount returned_values = platformCollisionCount(
+      *platform[i], no_collision_count, invisible_tiles);
+    no_collision_count = returned_values.none_colliding;
+    invisible_tiles = returned_values.uninteractible;
   }
   for (int j = 0; j < hazard_count; j++)
   {
     playerHazardCollision(*hazard[j]);
+  }
+  for (int k = 0; k < collectible_count; k++)
+  {
+    if (collision.gameobjectCheck(
+          player,*collectible[k]) != Collision::Type::NONE)
+      collectible[k]->visible = false;
   }
   debugText();
 }
@@ -99,7 +95,8 @@ void Game::render()
   }
   for (int k = 0; k < collectible_count; k++)
   {
-    window.draw(*collectible[k]->getSprite());
+    if (collectible[k]->visible)
+      window.draw(*collectible[k]->getSprite());
   }
   window.draw(*player.getSprite());
   window.draw(interface.debug);
@@ -117,6 +114,33 @@ void Game::keyPressed(sf::Event event)
 void Game::keyReleased(sf::Event event)
 {
   player.stop(event);
+}
+
+Game::CollisionCount Game::platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible)
+{
+  if (f_platform.visible)
+  {
+    if (collision.gameobjectCheck(player, f_platform) != Collision::Type::NONE)
+    {
+      none_colliding--;
+      playerPlatformCollision(f_platform);
+    }
+    else if (
+      collision.gameobjectCheck(player, f_platform) ==
+      Collision::Type::NONE)
+    {
+      none_colliding++;
+      if (none_colliding == walkable_tiles - uninteractible)
+      {
+        interface.collisions.setString("None");
+        player.on_ground = false;
+      }
+    }
+  }
+  else if (!f_platform.visible)
+    uninteractible++;
+  CollisionCount accum = { none_colliding, uninteractible };
+  return accum;
 }
 
 void Game::playerPlatformCollision(Platform& f_platform)
@@ -179,63 +203,31 @@ void Game::playerPlatformCollision(Platform& f_platform)
 void Game::playerHazardCollision(Hazard& f_hazard)
 {
   f_hazard.updateBoundingBox();
-  switch (collision.gameobjectCheck(player, f_hazard))
+  if (collision.gameobjectCheck(player, f_hazard) != Collision::Type::NONE)
   {
-    case (Collision::Type::TOP):
+    if (f_hazard.facing_left && !f_hazard.on_ground
+        && player.top_r_x > f_hazard.top_l_x + (f_hazard.getSprite()->getGlobalBounds().width / 2)
+        ||!f_hazard.facing_left && !f_hazard.on_ground
+             && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2)
+        ||f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
     {
-      if (f_hazard.on_ground)
-      {
-        player.getSprite()->setPosition(
-          platform[spawn_tile]->getSprite()->getPosition().x,
-          platform[spawn_tile]->getSprite()->getPosition().y);
-      }
-      else
-      {
-        player.getSprite()->setPosition(
-          player.top_l_x,
-          f_hazard.top_l_y - player.getSprite()->getGlobalBounds().height);
-        player.on_ground = true;
-      }
-      break;
+      player.getSprite()->setPosition(
+        platform[spawn_tile]->getSprite()->getPosition().x,
+        platform[spawn_tile]->getSprite()->getPosition().y);
     }
-    case (Collision::Type::BOTTOM):
-    {
-      break;
-    }
-    case (Collision::Type::LEFT):
-    {
-      if (f_hazard.on_left && !f_hazard.on_ground)
-      {
-        player.getSprite()->setPosition(
-          platform[spawn_tile]->getSprite()->getPosition().x,
-          platform[spawn_tile]->getSprite()->getPosition().y);
-      }
-      else if (f_hazard.on_ground)
-      {
-        player.getSprite()->setPosition(
-          f_hazard.top_l_x - player.getSprite()->getGlobalBounds().width,
-          player.top_l_y);
-      }
-      break;
-    }
-    case (Collision::Type::RIGHT):
-    {
-      if (!f_hazard.on_left && !f_hazard.on_ground)
-      {
-        player.getSprite()->setPosition(
-          platform[spawn_tile]->getSprite()->getPosition().x,
-          platform[spawn_tile]->getSprite()->getPosition().y);
-      }
-      else if (f_hazard.on_ground)
-      {
-        player.getSprite()->setPosition(f_hazard.top_r_x, player.top_l_y);
-      }
-      break;
-    }
-    case (Collision::Type::NONE):
-    {
-      break;
-    }
+//    else if (!f_hazard.facing_left && !f_hazard.on_ground
+//             && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2))
+//    {
+//      player.getSprite()->setPosition(
+//        platform[spawn_tile]->getSprite()->getPosition().x,
+//        platform[spawn_tile]->getSprite()->getPosition().y);
+//    }
+//    else if (f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
+//    {
+//      player.getSprite()->setPosition(
+//        platform[spawn_tile]->getSprite()->getPosition().x,
+//        platform[spawn_tile]->getSprite()->getPosition().y);
+//    }
   }
 }
 
@@ -368,7 +360,7 @@ void Game::generateLevel()
         if (tile_type == sf::Color::Black)
         {
           hazard[hazard_accum]->initLeftTexture();
-          hazard[hazard_accum]->on_left = false;
+          hazard[hazard_accum]->facing_left = false;
           hazard_accum++;
           continue;
         }
@@ -382,7 +374,7 @@ void Game::generateLevel()
               0,
               -hazard[hazard_accum]->getSprite()->getLocalBounds().width,
               hazard[hazard_accum]->getSprite()->getLocalBounds().height));
-          hazard[hazard_accum]->on_left = true;
+          hazard[hazard_accum]->facing_left = true;
         }
         else
           hazard[hazard_accum]->on_ground = true;
