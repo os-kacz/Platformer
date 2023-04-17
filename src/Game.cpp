@@ -108,7 +108,10 @@ void Game::keyPressed(sf::Event event)
 {
   player.move(event);
   if (event.key.code == sf::Keyboard::Escape)
+  {
     window.close();
+    std::cout << "Deconstructing...\n";
+  }
 }
 
 void Game::keyReleased(sf::Event event)
