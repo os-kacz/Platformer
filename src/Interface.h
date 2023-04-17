@@ -13,6 +13,9 @@ class Interface
   sf::Text debug;
   sf::Text collisions;
   sf::Text jump_window;
+  sf::Text main_text;
+  sf::Text score;
+  sf::Text lives;
  private:
   sf::RenderWindow& window;
   sf::Font font;

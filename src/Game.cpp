@@ -47,7 +47,7 @@ bool Game::init()
   std::cout << "tiles placed: " << walkable_tiles << "/120" << std::endl;
   std::cout << "hazards: " << hazard_count << "/20" << std::endl;
   std::cout << "collectibles: " << collectible_count << "/10" << std::endl;
-  gamestate = MAIN_MENU;
+  gamestate = MAINMENU;
   if (interface.initText() && player.initPlayer())
   {
     generateLevel();
@@ -59,10 +59,9 @@ bool Game::init()
 
 void Game::update(float dt)
 {
-  if (player.health < 0)
-  {
+  if (player.health == 0)
     gamestate = GAMEOVER;
-  }
+
   if (gamestate == PLAYGAME)
   {
     player.update(dt);
@@ -82,19 +81,18 @@ void Game::update(float dt)
     }
     for (int k = 0; k < collectible_count; k++)
     {
-      if (
-        collision.gameobjectCheck(player, *collectible[k]) !=
+      if (collision.gameobjectCheck(player, *collectible[k]) !=
         Collision::Type::NONE && collectible[k]->visible)
       {
         collectible[k]->visible = false;
         current_collectibles++;
+        interface.score.setString(
+          "Score: " + std::to_string(current_collectibles));
         if (current_collectibles == collectible_count)
-        {
           gamestate = GAMEWIN;
-        }
       }
     }
-    debugText();
+    //debugText();
   }
 }
 
@@ -102,9 +100,9 @@ void Game::render()
 {
   switch (gamestate)
   {
-    case MAIN_MENU:
+    case MAINMENU:
     {
-
+      window.draw(interface.main_text);
       break;
     }
     case PLAYGAME:
@@ -124,19 +122,34 @@ void Game::render()
           window.draw(*collectible[k]->getSprite());
       }
       window.draw(*player.getSprite());
-      window.draw(interface.debug);
-      window.draw(interface.collisions);
-      window.draw(interface.jump_window);
+      window.draw(interface.score);
+      window.draw(interface.lives);
+
+//      window.draw(interface.debug);
+//      window.draw(interface.collisions);
+//      window.draw(interface.jump_window);
       break;
     }
     case GAMEWIN:
     {
-
+      interface.main_text.setString("You got all the gems!\nPress enter to replay");
+      interface.main_text.setPosition(
+        (window.getSize().x / 2) -
+          (interface.main_text.getGlobalBounds().width / 2),
+        (window.getSize().y / 2) -
+          (interface.main_text.getGlobalBounds().height / 2));
+      window.draw(interface.main_text);
       break;
     }
     case GAMEOVER:
     {
-
+      interface.main_text.setString("You lost all your lives\nPress enter to replay");
+      interface.main_text.setPosition(
+        (window.getSize().x / 2) -
+          (interface.main_text.getGlobalBounds().width / 2),
+        (window.getSize().y / 2) -
+          (interface.main_text.getGlobalBounds().height / 2));
+      window.draw(interface.main_text);
       break;
     }
   }
@@ -144,26 +157,38 @@ void Game::render()
 
 void Game::keyPressed(sf::Event event)
 {
-  if (event.key.code == sf::Keyboard::Enter && gamestate == MAIN_MENU)
-    gamestate = PLAYGAME;
+  if (event.key.code == sf::Keyboard::Enter && gamestate != PLAYGAME)
+    restartGame();
 
   if (gamestate == PLAYGAME)
-  {
     player.move(event);
-    if (event.key.code == sf::Keyboard::Escape)
-    {
-      window.close();
-      std::cout << "Deconstructing...\n";
-    }
+
+  if (event.key.code == sf::Keyboard::Escape)
+  {
+    window.close();
+    std::cout << "Deconstructing...\n";
   }
 }
 
 void Game::keyReleased(sf::Event event)
 {
   if (gamestate == PLAYGAME)
-  {
     player.stop(event);
-  }
+}
+
+void Game::restartGame()
+{
+  for (int i = 0; i < collectible_count; i++)
+    collectible[i]->visible = true;
+  player.health = 4;
+  current_collectibles = 0;
+  interface.score.setString(
+    "Score: " + std::to_string(current_collectibles));
+  interface.lives.setString("Lives: " + std::to_string(player.health));
+  player.getSprite()->setPosition(
+    platform[spawn_tile]->getSprite()->getPosition().x,
+    platform[spawn_tile]->getSprite()->getPosition().y);
+  gamestate = PLAYGAME;
 }
 
 Game::CollisionCount Game::platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible)
@@ -258,13 +283,14 @@ void Game::playerHazardCollision(Hazard& f_hazard)
     if (f_hazard.facing_left && !f_hazard.on_ground
         && player.top_r_x > f_hazard.top_l_x + (f_hazard.getSprite()->getGlobalBounds().width / 2)
         ||!f_hazard.facing_left && !f_hazard.on_ground
-             && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2)
+        && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2)
         ||f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
     {
       player.health--;
       player.getSprite()->setPosition(
         platform[spawn_tile]->getSprite()->getPosition().x,
         platform[spawn_tile]->getSprite()->getPosition().y);
+      interface.lives.setString("Lives: " + std::to_string(player.health));
     }
 //    else if (!f_hazard.facing_left && !f_hazard.on_ground
 //             && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2))
@@ -298,6 +324,8 @@ void Game::windowCollision()
       player.getSprite()->setPosition(
         platform[spawn_tile]->getSprite()->getPosition().x,
         platform[spawn_tile]->getSprite()->getPosition().y);
+      player.health--;
+      interface.lives.setString("Lives: " + std::to_string(player.health));
       break;
     }
     case Collision::Type::LEFT:
@@ -314,6 +342,8 @@ void Game::windowCollision()
     }
     case Collision::Type::NONE:
     {
+      // player.on_ground = false;
+      // this one change just might reduce the line count by like 50+
       break;
     }
   }

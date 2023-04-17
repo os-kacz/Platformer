@@ -20,7 +20,8 @@ class Game
   void keyPressed(sf::Event event);
   void keyReleased(sf::Event event);
  private:
-  enum{MAIN_MENU, PLAYGAME, GAMEWIN, GAMEOVER} gamestate;
+  enum{
+    MAINMENU, PLAYGAME, GAMEWIN, GAMEOVER} gamestate;
   const static int tile_column = 20;
   const static int tile_row = 13;
   int walkable_tiles = 0;
@@ -38,6 +39,7 @@ class Game
   struct CollisionCount{int none_colliding; int uninteractible;} ;
   CollisionCount platformCollisionCount(
     Platform& f_platform, int none_colliding, int uninteractible);
+  void restartGame();
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
   void windowCollision();
