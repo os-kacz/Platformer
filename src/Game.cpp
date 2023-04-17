@@ -70,10 +70,8 @@ void Game::update(float dt)
     int invisible_tiles    = 0;
     for (int i = 0; i < walkable_tiles; i++)
     {
-      CollisionCount returned_values = platformCollisionCount(
-        *platform[i], no_collision_count, invisible_tiles);
-      no_collision_count = returned_values.none_colliding;
-      invisible_tiles    = returned_values.uninteractible;
+      if (platform[i]->visible)
+        playerPlatformCollision(*platform[i]);
     }
     for (int j = 0; j < hazard_count; j++)
     {
@@ -189,33 +187,6 @@ void Game::restartGame()
     platform[spawn_tile]->getSprite()->getPosition().x,
     platform[spawn_tile]->getSprite()->getPosition().y);
   gamestate = PLAYGAME;
-}
-
-Game::CollisionCount Game::platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible)
-{
-  if (f_platform.visible)
-  {
-    if (collision.gameobjectCheck(player, f_platform) != Collision::Type::NONE)
-    {
-      none_colliding--;
-      playerPlatformCollision(f_platform);
-    }
-    else if (
-      collision.gameobjectCheck(player, f_platform) ==
-      Collision::Type::NONE)
-    {
-      none_colliding++;
-      if (none_colliding == walkable_tiles - uninteractible)
-      {
-        interface.collisions.setString("None");
-        player.on_ground = false;
-      }
-    }
-  }
-  else if (!f_platform.visible)
-    uninteractible++;
-  CollisionCount accum = { none_colliding, uninteractible };
-  return accum;
 }
 
 void Game::playerPlatformCollision(Platform& f_platform)
@@ -342,8 +313,8 @@ void Game::windowCollision()
     }
     case Collision::Type::NONE:
     {
-      // player.on_ground = false;
-      // this one change just might reduce the line count by like 50+
+      player.on_ground = false;
+      // YEP, THIS ONE LINE JUST MADE 30% OF MY EFFORTS REDUNDANT
       break;
     }
   }

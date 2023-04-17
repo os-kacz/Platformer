@@ -36,9 +36,6 @@ class Game
   Hazard* hazard[20];
   Collectible* collectible[10];
   Collision collision;
-  struct CollisionCount{int none_colliding; int uninteractible;} ;
-  CollisionCount platformCollisionCount(
-    Platform& f_platform, int none_colliding, int uninteractible);
   void restartGame();
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
