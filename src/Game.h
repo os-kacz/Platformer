@@ -20,31 +20,32 @@ class Game
   void keyPressed(sf::Event event);
   void keyReleased(sf::Event event);
  private:
+  enum{MAIN_MENU, PLAYGAME, GAMEWIN, GAMEOVER} gamestate;
   const static int tile_column = 20;
   const static int tile_row = 13;
-  const static int platform_count = tile_column * tile_row;
   int walkable_tiles = 0;
   int hazard_count = 0;
   int collectible_count = 0;
+  int current_collectibles = 0;
   sf::RenderWindow& window;
-  sf::Image level;
+  sf::Image levelone;
   Interface interface;
   Player player;
-  Platform* platform[platform_count];
+  Platform* platform[120];
   Hazard* hazard[20];
   Collectible* collectible[10];
   Collision collision;
-  void generateLevel();
-  void countTiles();
-  int spawn_tile;
   struct CollisionCount{int none_colliding; int uninteractible;} ;
-  CollisionCount platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible);
+  CollisionCount platformCollisionCount(
+    Platform& f_platform, int none_colliding, int uninteractible);
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
   void windowCollision();
   void debugText();
   bool calibratePunchCard();
-
+  void countTiles();
+  int spawn_tile;
+  void generateLevel();
 };
 
 #endif // PLATFORMER_GAME_H

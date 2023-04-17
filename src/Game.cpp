@@ -44,9 +44,10 @@ Game::~Game()
 
 bool Game::init()
 {
-  std::cout << "tiles placed: " << walkable_tiles << "/260" << std::endl;
-  std::cout << "hazards: " << hazard_count << "/20" <<std::endl;
+  std::cout << "tiles placed: " << walkable_tiles << "/120" << std::endl;
+  std::cout << "hazards: " << hazard_count << "/20" << std::endl;
   std::cout << "collectibles: " << collectible_count << "/10" << std::endl;
+  gamestate = MAIN_MENU;
   if (interface.initText() && player.initPlayer())
   {
     generateLevel();
@@ -58,65 +59,111 @@ bool Game::init()
 
 void Game::update(float dt)
 {
-  player.update(dt);
-  windowCollision();
-  int no_collision_count = 0;
-  int invisible_tiles = 0;
-  for (int i = 0; i < walkable_tiles; i++)
+  if (player.health < 0)
   {
-    CollisionCount returned_values = platformCollisionCount(
-      *platform[i], no_collision_count, invisible_tiles);
-    no_collision_count = returned_values.none_colliding;
-    invisible_tiles = returned_values.uninteractible;
+    gamestate = GAMEOVER;
   }
-  for (int j = 0; j < hazard_count; j++)
+  if (gamestate == PLAYGAME)
   {
-    playerHazardCollision(*hazard[j]);
+    player.update(dt);
+    windowCollision();
+    int no_collision_count = 0;
+    int invisible_tiles    = 0;
+    for (int i = 0; i < walkable_tiles; i++)
+    {
+      CollisionCount returned_values = platformCollisionCount(
+        *platform[i], no_collision_count, invisible_tiles);
+      no_collision_count = returned_values.none_colliding;
+      invisible_tiles    = returned_values.uninteractible;
+    }
+    for (int j = 0; j < hazard_count; j++)
+    {
+      playerHazardCollision(*hazard[j]);
+    }
+    for (int k = 0; k < collectible_count; k++)
+    {
+      if (
+        collision.gameobjectCheck(player, *collectible[k]) !=
+        Collision::Type::NONE && collectible[k]->visible)
+      {
+        collectible[k]->visible = false;
+        current_collectibles++;
+        if (current_collectibles == collectible_count)
+        {
+          gamestate = GAMEWIN;
+        }
+      }
+    }
+    debugText();
   }
-  for (int k = 0; k < collectible_count; k++)
-  {
-    if (collision.gameobjectCheck(
-          player,*collectible[k]) != Collision::Type::NONE)
-      collectible[k]->visible = false;
-  }
-  debugText();
 }
 
 void Game::render()
 {
-  for (int i = 0; i < walkable_tiles; i++)
+  switch (gamestate)
   {
-    if (platform[i]->visible)
-      window.draw(*platform[i]->getSprite());
+    case MAIN_MENU:
+    {
+
+      break;
+    }
+    case PLAYGAME:
+    {
+      for (int i = 0; i < walkable_tiles; i++)
+      {
+        if (platform[i]->visible)
+          window.draw(*platform[i]->getSprite());
+      }
+      for (int j = 0; j < hazard_count; j++)
+      {
+        window.draw(*hazard[j]->getSprite());
+      }
+      for (int k = 0; k < collectible_count; k++)
+      {
+        if (collectible[k]->visible)
+          window.draw(*collectible[k]->getSprite());
+      }
+      window.draw(*player.getSprite());
+      window.draw(interface.debug);
+      window.draw(interface.collisions);
+      window.draw(interface.jump_window);
+      break;
+    }
+    case GAMEWIN:
+    {
+
+      break;
+    }
+    case GAMEOVER:
+    {
+
+      break;
+    }
   }
-  for (int j = 0; j < hazard_count; j++)
-  {
-    window.draw(*hazard[j]->getSprite());
-  }
-  for (int k = 0; k < collectible_count; k++)
-  {
-    if (collectible[k]->visible)
-      window.draw(*collectible[k]->getSprite());
-  }
-  window.draw(*player.getSprite());
-  window.draw(interface.debug);
-  window.draw(interface.collisions);
-  window.draw(interface.jump_window);
 }
 
 void Game::keyPressed(sf::Event event)
 {
-  player.move(event);
-  if (event.key.code == sf::Keyboard::Escape)
+  if (event.key.code == sf::Keyboard::Enter && gamestate == MAIN_MENU)
+    gamestate = PLAYGAME;
+
+  if (gamestate == PLAYGAME)
   {
-    window.close();
-    std::cout << "Deconstructing...\n";
+    player.move(event);
+    if (event.key.code == sf::Keyboard::Escape)
+    {
+      window.close();
+      std::cout << "Deconstructing...\n";
+    }
   }
 }
 
 void Game::keyReleased(sf::Event event)
 {
-  player.stop(event);
+  if (gamestate == PLAYGAME)
+  {
+    player.stop(event);
+  }
 }
 
 Game::CollisionCount Game::platformCollisionCount(Platform& f_platform, int none_colliding, int uninteractible)
@@ -214,6 +261,7 @@ void Game::playerHazardCollision(Hazard& f_hazard)
              && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2)
         ||f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
     {
+      player.health--;
       player.getSprite()->setPosition(
         platform[spawn_tile]->getSprite()->getPosition().x,
         platform[spawn_tile]->getSprite()->getPosition().y);
@@ -286,10 +334,10 @@ void Game::debugText()
 
 bool Game::calibratePunchCard()
 {
-  level.loadFromFile("Data/Images/levelone.png");
+  levelone.loadFromFile("Data/Images/levelone.png");
   for (int i = 0; i < 6; i++)
   {
-    sf::Color color = level.getPixel(i,13);
+    sf::Color color = levelone.getPixel(i,13);
     if (color != sf::Color::Red
         && color != sf::Color::Yellow
         && color != sf::Color::Green
@@ -305,12 +353,12 @@ void Game::countTiles()
 {
   if (calibratePunchCard())
   {
-    std::cout << "level punch card calibrated\n";
+    std::cout << "levelone punch card calibrated\n";
     for (int x_gen = 0; x_gen < tile_column; x_gen++)
     {
       for (int y_gen = 0; y_gen < tile_row; y_gen++)
       {
-        sf::Color tile_type = level.getPixel(x_gen, y_gen);
+        sf::Color tile_type = levelone.getPixel(x_gen, y_gen);
         if (tile_type == sf::Color::Black || tile_type == sf::Color::Blue)
           walkable_tiles++;
         if (tile_type == sf::Color::Red)
@@ -321,7 +369,7 @@ void Game::countTiles()
     }
   }
   else
-    std::cout << "level punch card failure\n";
+    std::cout << "levelone punch card failure\n";
 }
 
 void Game::generateLevel()
@@ -334,7 +382,7 @@ void Game::generateLevel()
   {
     for (int y_gen = 0; y_gen < tile_row; y_gen++)
     {
-      tile_type = level.getPixel(x_gen, y_gen);
+      tile_type = levelone.getPixel(x_gen, y_gen);
       if (tile_type == sf::Color::Black)
       {
         platform[walkable_accum]->getSprite()->setPosition(
@@ -359,7 +407,7 @@ void Game::generateLevel()
         hazard[hazard_accum]->getSprite()->setPosition(
           x_gen * hazard[hazard_accum]->getSprite()->getGlobalBounds().width,
           y_gen * hazard[hazard_accum]->getSprite()->getGlobalBounds().height);
-        tile_type = level.getPixel(x_gen - 1, y_gen);
+        tile_type = levelone.getPixel(x_gen - 1, y_gen);
         if (tile_type == sf::Color::Black)
         {
           hazard[hazard_accum]->initLeftTexture();
@@ -367,7 +415,7 @@ void Game::generateLevel()
           hazard_accum++;
           continue;
         }
-        tile_type = level.getPixel(x_gen + 1, y_gen);
+        tile_type = levelone.getPixel(x_gen + 1, y_gen);
         if (tile_type == sf::Color::Black)
         {
           hazard[hazard_accum]->initLeftTexture();

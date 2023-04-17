@@ -11,9 +11,9 @@ bool Player::initPlayer()
 {
   getSprite()->setPosition(500,window.getSize().y - 500);
   direction.y = gravity;
-  getSprite()->setScale(0.1,0.06);
+  getSprite()->setScale(1.2,1.2);
   return initialiseSprite(player_texture,
-                          "Data/Images/placeholder.png");
+                          "Data/Images/kenney_pixelplatformer/Characters/character_0000.png");
 }
 
 void Player::update(float dt)

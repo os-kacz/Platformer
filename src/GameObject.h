@@ -13,7 +13,7 @@ class GameObject
   bool initialiseSprite(sf::Texture& texture, std::string filename);
   sf::Sprite* getSprite();
   bool visible = true;
-  int health;
+  int health = 4;
   float speed = 100;
   Vector direction = Vector(0, 0);
   void updateBoundingBox();
