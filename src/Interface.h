@@ -3,13 +3,15 @@
 
 #import <iostream>
 #import <SFML/Graphics.hpp>
+#import "Camera.h"
 
 class Interface
 {
  public:
-  Interface(sf::RenderWindow& game_window);
+  Interface(sf::RenderWindow& game_window, Camera& camera);
   virtual ~Interface();
   bool initText();
+  void textInView();
   sf::Text debug;
   sf::Text collisions;
   sf::Text jump_window;
@@ -19,6 +21,7 @@ class Interface
  private:
   sf::RenderWindow& window;
   sf::Font font;
+  Camera& camera;
 };
 
 #endif // PLATFORMERSFML_INTERFACE_H

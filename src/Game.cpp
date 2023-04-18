@@ -1,8 +1,8 @@
 #include "Game.h"
 #include <iostream>
 
-Game::Game(sf::RenderWindow& game_window)
-  : window(game_window), player(window, interface), interface(window)
+Game::Game(sf::RenderWindow& game_window) : window(game_window), player(window, interface), interface(window, camera),
+  camera(player, window)
 {
   srand(time(NULL));
   countTiles();
@@ -59,15 +59,15 @@ bool Game::init()
 
 void Game::update(float dt)
 {
+  interface.textInView();
   if (player.health == 0)
     gamestate = GAMEOVER;
 
   if (gamestate == PLAYGAME)
   {
     player.update(dt);
+    camera.followPlayer();
     windowCollision();
-    int no_collision_count = 0;
-    int invisible_tiles    = 0;
     for (int i = 0; i < walkable_tiles; i++)
     {
       if (platform[i]->visible)
@@ -122,6 +122,7 @@ void Game::render()
       window.draw(*player.getSprite());
       window.draw(interface.score);
       window.draw(interface.lives);
+      window.setView(*camera.getCamera());
 
 //      window.draw(interface.debug);
 //      window.draw(interface.collisions);
@@ -263,19 +264,6 @@ void Game::playerHazardCollision(Hazard& f_hazard)
         platform[spawn_tile]->getSprite()->getPosition().y);
       interface.lives.setString("Lives: " + std::to_string(player.health));
     }
-//    else if (!f_hazard.facing_left && !f_hazard.on_ground
-//             && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2))
-//    {
-//      player.getSprite()->setPosition(
-//        platform[spawn_tile]->getSprite()->getPosition().x,
-//        platform[spawn_tile]->getSprite()->getPosition().y);
-//    }
-//    else if (f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
-//    {
-//      player.getSprite()->setPosition(
-//        platform[spawn_tile]->getSprite()->getPosition().x,
-//        platform[spawn_tile]->getSprite()->getPosition().y);
-//    }
   }
 }
 

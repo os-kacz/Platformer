@@ -8,11 +8,12 @@
 #include "Interface.h"
 #include "Hazard.h"
 #include "Collectible.h"
+#include "Camera.h"
 
 class Game
 {
  public:
-  Game(sf::RenderWindow& window);
+  Game(sf::RenderWindow& game_window);
   ~Game();
   bool init();
   void update(float dt);
@@ -36,6 +37,7 @@ class Game
   Hazard* hazard[20];
   Collectible* collectible[10];
   Collision collision;
+  Camera camera;
   void restartGame();
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);

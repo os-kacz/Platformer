@@ -1,5 +1,5 @@
 #include "Interface.h"
-Interface::Interface(sf::RenderWindow& game_window) : window(game_window)
+Interface::Interface(sf::RenderWindow& game_window, Camera& camera) : window(game_window), camera(camera)
 {
 
 }
@@ -35,21 +35,29 @@ bool Interface::initText()
   main_text.setFont(font);
   main_text.setCharacterSize(45);
   main_text.setFillColor(sf::Color::White);
-  main_text.setPosition(
-    (window.getSize().x / 2) - (main_text.getGlobalBounds().width / 2),
-    (window.getSize().y / 2) - (main_text.getGlobalBounds().height / 2));
+  main_text.setPosition(camera.getCamera()->getCenter().x,camera.getCamera()->getCenter().y);
 
   score.setString("Score: 0");
   score.setFont(font);
   score.setCharacterSize(35);
   score.setFillColor(sf::Color::White);
-  score.setPosition(window.getSize().x - score.getGlobalBounds().width,0);
+  score.setPosition(camera.getCamera()->getCenter().x - score.getGlobalBounds().width,0);
 
   lives.setString("Lives: 4");
   lives.setFont(font);
   lives.setCharacterSize(35);
   lives.setFillColor(sf::Color::White);
-  lives.setPosition(window.getSize().x - score.getGlobalBounds().width,50);
+  lives.setPosition(camera.getCamera()->getCenter().x - score.getGlobalBounds().width,50);
 
   return true;
+}
+void Interface::textInView()
+{
+  lives.setPosition(
+    camera.getCamera()->getCenter().x - (camera.getCamera()->getSize().x / 2) + 10,
+    camera.getCamera()->getCenter().y - (camera.getCamera()->getSize().y / 2));
+  score.setPosition(
+    camera.getCamera()->getCenter().x - (camera.getCamera()->getSize().x / 2) + 10,
+    camera.getCamera()->getCenter().y - (camera.getCamera()->getSize().y / 2) + 50);
+  main_text.setPosition(camera.getCamera()->getCenter().x,camera.getCamera()->getCenter().y);
 }
