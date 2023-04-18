@@ -276,6 +276,7 @@ void Game::windowCollision()
         platform[spawn_tile]->getSprite()->getPosition().x,
         platform[spawn_tile]->getSprite()->getPosition().y);
       player.health--;
+      player.playHurtSFX();
       interface.lives.setString("Lives: " + std::to_string(player.health));
       break;
     }

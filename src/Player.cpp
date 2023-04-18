@@ -43,7 +43,9 @@ bool Player::initPlayer()
   jump_sfx_1.setBuffer(jump_buffer[0]);
   jump_sfx_2.setBuffer(jump_buffer[1]);
   walk_sfx_1.setBuffer(walk_buffer[0]);
+  walk_sfx_1.setVolume(50);
   walk_sfx_2.setBuffer(walk_buffer[1]);
+  walk_sfx_2.setVolume(50);
   gem_sfx.setBuffer(gem_buffer);
   hurt_sfx.setBuffer(hurt_buffer);
   getSprite()->setPosition(500,window.getSize().y - 500);
@@ -63,10 +65,49 @@ void Player::update(float dt)
     texture_flip = !texture_flip;
   }
   if (texture_flip && direction.x != 0)
+  {
+    if (direction.x > 0)
+    {
+      getSprite()->setTextureRect(
+        sf::IntRect(
+          getSprite()->getLocalBounds().width,
+          0,
+          -getSprite()->getLocalBounds().width,
+          getSprite()->getLocalBounds().height));
+    }
+    else if (direction.x < 0)
+    {
+      getSprite()->setTextureRect(
+        sf::IntRect(
+          0,
+          0,
+          getSprite()->getLocalBounds().width,
+          getSprite()->getLocalBounds().height));
+    }
     getSprite()->setTexture(player_texture_2);
+  }
   else
+  {
+    if (direction.x > 0)
+    {
+      getSprite()->setTextureRect(
+        sf::IntRect(
+          getSprite()->getLocalBounds().width,
+          0,
+          -getSprite()->getLocalBounds().width,
+          getSprite()->getLocalBounds().height));
+    }
+    else if (direction.x < 0)
+    {
+      getSprite()->setTextureRect(
+        sf::IntRect(
+          0,
+          0,
+          getSprite()->getLocalBounds().width,
+          getSprite()->getLocalBounds().height));
+    }
     getSprite()->setTexture(player_texture_1);
-
+  }
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
   updateBoundingBox();
   checkJump();
