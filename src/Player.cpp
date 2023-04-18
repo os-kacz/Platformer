@@ -49,12 +49,24 @@ bool Player::initPlayer()
   getSprite()->setPosition(500,window.getSize().y - 500);
   direction.y = gravity;
   getSprite()->setScale(1.2,1.2);
-  return initialiseSprite(player_texture,
+  initialiseSprite(player_texture_1,
                           "Data/Images/kenney_pixelplatformer/Characters/character_0000.png");
+  return initialiseSprite(player_texture_2,
+                          "Data/Images/kenney_pixelplatformer/Characters/character_0001.png");
 }
 
 void Player::update(float dt)
 {
+  if (animation_step.getElapsedTime().asSeconds() > 0.2)
+  {
+    animation_step.restart();
+    texture_flip = !texture_flip;
+  }
+  if (texture_flip && direction.x != 0)
+    getSprite()->setTexture(player_texture_2);
+  else
+    getSprite()->setTexture(player_texture_1);
+
   getSprite()->move(direction.x * dt * speed, direction.y * dt * speed);
   updateBoundingBox();
   checkJump();

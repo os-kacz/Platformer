@@ -21,10 +21,12 @@ class Player : public GameObject
   bool on_ground;
   bool is_jumping;
  private:
-  sf::Texture player_texture;
+  sf::Texture player_texture_1;
+  sf::Texture player_texture_2;
   sf::RenderWindow& window;
   sf::Clock jump_window;
   sf::Clock sound_window;
+  sf::Clock animation_step;
   sf::SoundBuffer jump_buffer[2];
   sf::SoundBuffer walk_buffer[2];
   sf::SoundBuffer gem_buffer;
@@ -39,6 +41,7 @@ class Player : public GameObject
   float jump_power = 5;
   float terminal_velocity = 4;
   bool played = false;
+  bool texture_flip = true;
   void checkJump();
   void jumping();
   void falling();
