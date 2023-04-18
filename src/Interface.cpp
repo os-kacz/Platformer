@@ -13,25 +13,8 @@ bool Interface::initText()
     std::cout << "Could not load font\n";
     return false;
   }
-  debug.setString("");
-  debug.setFont(font);
-  debug.setCharacterSize(25);
-  debug.setFillColor(sf::Color::White);
-  debug.setPosition(0,0);
 
-  collisions.setString("");
-  collisions.setFont(font);
-  collisions.setCharacterSize(25);
-  collisions.setFillColor(sf::Color::White);
-  collisions.setPosition(0,debug.getPosition().y + debug.getGlobalBounds().height);
-
-  jump_window.setString("");
-  jump_window.setFont(font);
-  jump_window.setCharacterSize(25);
-  jump_window.setFillColor(sf::Color::White);
-  jump_window.setPosition(0,collisions.getPosition().y + collisions.getGlobalBounds().height);
-
-  main_text.setString("Press Enter to play the Platformer\n\n- 'A' & 'D' to move sideways\n- 'Space' to jump\n- Move into walls to grip them\n- Collect the gems, avoid pits and spikes!");
+  main_text.setString("Press Enter to play the Platformer\n\n- 'A' & 'D' to move sideways\n- 'Space' to jump_sfx\n- Move into walls to grip them\n- Collect the gems, avoid pits and spikes!");
   main_text.setFont(font);
   main_text.setCharacterSize(45);
   main_text.setFillColor(sf::Color::White);

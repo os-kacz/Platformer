@@ -1,10 +1,9 @@
 #include "Game.h"
 #include <iostream>
 
-Game::Game(sf::RenderWindow& game_window) : window(game_window), player(window, interface), interface(window, camera),
+Game::Game(sf::RenderWindow& game_window) : window(game_window), player(window), interface(window, camera),
   camera(player, window)
 {
-  srand(time(NULL));
   countTiles();
   for (int i = 0; i < walkable_tiles; i++)
   {
@@ -85,14 +84,13 @@ void Game::update(float dt)
       {
         collectible[k]->visible = false;
         current_collectibles++;
+        player.playGemSFX();
         interface.score.setString(
           "Score: " + std::to_string(current_collectibles));
         if (current_collectibles == collectible_count)
           gamestate = GAMEWIN;
       }
     }
-    //debugText();
-
   }
 }
 
@@ -107,6 +105,7 @@ void Game::render()
     }
     case PLAYGAME:
     {
+      window.draw(*camera.background.getSprite());
       for (int i = 0; i < walkable_tiles; i++)
       {
         if (platform[i]->visible)
@@ -125,10 +124,6 @@ void Game::render()
       window.draw(interface.score);
       window.draw(interface.lives);
       window.setView(*camera.getCamera());
-
-//      window.draw(interface.debug);
-//      window.draw(interface.collisions);
-//      window.draw(interface.jump_window);
       break;
     }
     case GAMEWIN:
@@ -187,33 +182,36 @@ void Game::playerPlatformCollision(Platform& f_platform)
   f_platform.updateBoundingBox();
   switch (collision.gameobjectCheck(player, f_platform))
   {
+      // allows player to walk on top of platforms and jump again
     case (Collision::Type::TOP):
     {
       if (!player.on_ground)
       {
-        interface.collisions.setString("Top");
         player.on_ground = true;
         player.direction.y = 0;
         player.getSprite()->setPosition(
           player.top_l_x,
           f_platform.top_l_y - player.getSprite()->getGlobalBounds().height);
+        player.playCollideSFX(Collision::Type::TOP);
       }
       break;
     }
+      // stops player jumping and makes them fall down
     case (Collision::Type::BOTTOM):
     {
-      interface.collisions.setString("Bottom");
       player.is_jumping  = false;
       player.direction.y = 0;
       player.getSprite()->setPosition(player.top_l_x, f_platform.bot_l_y);
+      player.playCollideSFX(Collision::Type::BOTTOM);
       break;
     }
+      // left and right case allow players to grip onto blocks and slowly slide down
     case (Collision::Type::LEFT):
     {
-      interface.collisions.setString("Left");
       player.getSprite()->setPosition(
         f_platform.top_l_x - player.getSprite()->getGlobalBounds().width,
         player.top_l_y);
+      player.playCollideSFX(Collision::Type::LEFT);
       if (player.direction.x > 0 && player.direction.y > 0)
       {
         player.is_jumping  = false;
@@ -223,8 +221,8 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::RIGHT):
     {
-      interface.collisions.setString("Right");
       player.getSprite()->setPosition(f_platform.top_r_x, player.top_l_y);
+      player.playCollideSFX(Collision::Type::RIGHT);
       if (player.direction.x < 0 && player.direction.y > 0)
       {
         player.is_jumping  = false;
@@ -244,6 +242,7 @@ void Game::playerHazardCollision(Hazard& f_hazard)
   f_hazard.updateBoundingBox();
   if (collision.gameobjectCheck(player, f_hazard) != Collision::Type::NONE)
   {
+    // considers from what direction the player is coming from and when the player looks like when they physically touch the spike
     if (f_hazard.facing_left && !f_hazard.on_ground
         && player.top_r_x > f_hazard.top_l_x + (f_hazard.getSprite()->getGlobalBounds().width / 2)
         ||!f_hazard.facing_left && !f_hazard.on_ground
@@ -255,6 +254,7 @@ void Game::playerHazardCollision(Hazard& f_hazard)
         platform[spawn_tile]->getSprite()->getPosition().x,
         platform[spawn_tile]->getSprite()->getPosition().y);
       interface.lives.setString("Lives: " + std::to_string(player.health));
+      player.playHurtSFX();
     }
   }
 }
@@ -293,27 +293,18 @@ void Game::windowCollision()
     }
     case Collision::Type::NONE:
     {
+      player.playCollideSFX(Collision::Type::NONE);
+
       player.on_ground = false;
       // YEP, THIS ONE LINE JUST MADE 30% OF MY EFFORTS REDUNDANT
+      // had difficulty detecting when player walked off a platform, this line solved that issue
+      // keeping comment because it's funny
       break;
     }
   }
 }
 
-void Game::debugText()
-{
-  if (player.on_ground && !player.is_jumping)
-    interface.debug.setString("On Ground\nFalling");
-  else if (player.on_ground && player.is_jumping)
-    interface.debug.setString("On Ground\nJumping");
-  else if (!player.on_ground && !player.is_jumping)
-    interface.debug.setString("In Air\nFalling");
-  else if (!player.on_ground && player.is_jumping)
-    interface.debug.setString("In Air\nJumping");
-  interface.collisions.setPosition(0,interface.debug.getPosition().y + interface.debug.getGlobalBounds().height);
-}
-
-bool Game::calibratePunchCard()
+bool Game::calibratePunchCard() // reads calibration strip to check if colours are readable
 {
   levelone.loadFromFile("Data/Images/levelone.png");
   for (int i = 0; i < 6; i++)
@@ -330,7 +321,7 @@ bool Game::calibratePunchCard()
   return true;
 }
 
-void Game::countTiles()
+void Game::countTiles() // counts what tiles need to be created for the object pools
 {
   if (calibratePunchCard())
   {
@@ -353,7 +344,7 @@ void Game::countTiles()
     std::cout << "levelone punch card failure\n";
 }
 
-void Game::generateLevel()
+void Game::generateLevel() // generates level based on pixel colour and neighbouring pixels
 {
   int walkable_accum = 0;
   int hazard_accum = 0;

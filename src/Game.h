@@ -42,7 +42,6 @@ class Game
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
   void windowCollision();
-  void debugText();
   bool calibratePunchCard();
   void countTiles();
   int spawn_tile;

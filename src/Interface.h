@@ -12,9 +12,6 @@ class Interface
   virtual ~Interface();
   bool initText();
   void textInView();
-  sf::Text debug;
-  sf::Text collisions;
-  sf::Text jump_window;
   sf::Text main_text;
   sf::Text score;
   sf::Text lives;

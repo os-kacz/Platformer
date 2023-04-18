@@ -11,11 +11,13 @@ class Camera
   virtual ~Camera();
   void followPlayer();
   sf::View* getCamera();
+  GameObject background;
  private:
   void cameraClamp();
   sf::View* camera = nullptr;
   GameObject& player;
   sf::RenderWindow& window;
+  sf::Texture texture;
 };
 
 #endif // PLATFORMERSFML_CAMERA_H
