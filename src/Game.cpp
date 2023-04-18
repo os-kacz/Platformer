@@ -67,6 +67,7 @@ void Game::update(float dt)
   {
     player.update(dt);
     camera.followPlayer();
+    std::cout << player.bot_l_y << std::endl;
     windowCollision();
     for (int i = 0; i < walkable_tiles; i++)
     {
@@ -91,6 +92,7 @@ void Game::update(float dt)
       }
     }
     //debugText();
+
   }
 }
 
@@ -132,22 +134,12 @@ void Game::render()
     case GAMEWIN:
     {
       interface.main_text.setString("You got all the gems!\nPress enter to replay");
-      interface.main_text.setPosition(
-        (window.getSize().x / 2) -
-          (interface.main_text.getGlobalBounds().width / 2),
-        (window.getSize().y / 2) -
-          (interface.main_text.getGlobalBounds().height / 2));
       window.draw(interface.main_text);
       break;
     }
     case GAMEOVER:
     {
       interface.main_text.setString("You lost all your lives\nPress enter to replay");
-      interface.main_text.setPosition(
-        (window.getSize().x / 2) -
-          (interface.main_text.getGlobalBounds().width / 2),
-        (window.getSize().y / 2) -
-          (interface.main_text.getGlobalBounds().height / 2));
       window.draw(interface.main_text);
       break;
     }

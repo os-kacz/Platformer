@@ -35,7 +35,9 @@ bool Interface::initText()
   main_text.setFont(font);
   main_text.setCharacterSize(45);
   main_text.setFillColor(sf::Color::White);
-  main_text.setPosition(camera.getCamera()->getCenter().x,camera.getCamera()->getCenter().y);
+  main_text.setPosition(
+    camera.getCamera()->getCenter().x - (main_text.getGlobalBounds().width / 2),
+    camera.getCamera()->getCenter().y - (main_text.getGlobalBounds().height / 2));
 
   score.setString("Score: 0");
   score.setFont(font);
@@ -59,5 +61,7 @@ void Interface::textInView()
   score.setPosition(
     camera.getCamera()->getCenter().x - (camera.getCamera()->getSize().x / 2) + 10,
     camera.getCamera()->getCenter().y - (camera.getCamera()->getSize().y / 2) + 50);
-  main_text.setPosition(camera.getCamera()->getCenter().x,camera.getCamera()->getCenter().y);
+  main_text.setPosition(
+    camera.getCamera()->getCenter().x - (main_text.getGlobalBounds().width / 2),
+    camera.getCamera()->getCenter().y - (main_text.getGlobalBounds().height / 2));
 }

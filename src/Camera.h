@@ -12,10 +12,10 @@ class Camera
   void followPlayer();
   sf::View* getCamera();
  private:
+  void cameraClamp();
   sf::View* camera = nullptr;
   GameObject& player;
   sf::RenderWindow& window;
-  float y_diff;
 };
 
 #endif // PLATFORMERSFML_CAMERA_H
