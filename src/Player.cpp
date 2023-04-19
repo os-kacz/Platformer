@@ -48,6 +48,7 @@ bool Player::initPlayer()
   walk_sfx_2.setVolume(50);
   gem_sfx.setBuffer(gem_buffer);
   hurt_sfx.setBuffer(hurt_buffer);
+
   getSprite()->setPosition(500,window.getSize().y - 500);
   direction.y = gravity;
   getSprite()->setScale(1.2,1.2);
@@ -62,9 +63,9 @@ void Player::update(float dt)
   if (animation_step.getElapsedTime().asSeconds() > 0.2)
   {
     animation_step.restart();
-    texture_flip = !texture_flip;
+    texture_swap = !texture_swap;
   }
-  if (texture_flip && direction.x != 0)
+  if (texture_swap && direction.x != 0)
   {
     if (direction.x > 0)
     {

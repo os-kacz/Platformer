@@ -4,7 +4,8 @@
 Game::Game(sf::RenderWindow& game_window) : window(game_window), player(window), interface(window, camera),
   camera(player, window)
 {
-  countTiles();
+  calibrateLevelDom();
+  countTiles(leveldom);
   for (int i = 0; i < walkable_tiles; i++)
   {
     platform[i] = new Platform;
@@ -49,7 +50,7 @@ bool Game::init()
   gamestate = MAINMENU;
   if (interface.initText() && player.initPlayer())
   {
-    generateLevel();
+    generateLevel(leveldom);
     return true;
   }
   else
@@ -66,7 +67,6 @@ void Game::update(float dt)
   {
     player.update(dt);
     camera.followPlayer();
-    std::cout << player.bot_l_y << std::endl;
     windowCollision();
     for (int i = 0; i < walkable_tiles; i++)
     {
@@ -305,7 +305,7 @@ void Game::windowCollision()
   }
 }
 
-bool Game::calibratePunchCard() // reads calibration strip to check if colours are readable
+bool Game::calibrateLevelOne() // reads calibration strip to check if colours are readable
 {
   levelone.loadFromFile("Data/Images/levelone.png");
   for (int i = 0; i < 6; i++)
@@ -322,30 +322,41 @@ bool Game::calibratePunchCard() // reads calibration strip to check if colours a
   return true;
 }
 
-void Game::countTiles() // counts what tiles need to be created for the object pools
+bool Game::calibrateLevelDom()
 {
-  if (calibratePunchCard())
+  leveldom.loadFromFile("Data/Images/leveldom.png");
+  for (int i = 0; i < 6; i++)
   {
-    std::cout << "levelone punch card calibrated\n";
-    for (int x_gen = 0; x_gen < tile_column; x_gen++)
-    {
-      for (int y_gen = 0; y_gen < tile_row; y_gen++)
-      {
-        sf::Color tile_type = levelone.getPixel(x_gen, y_gen);
-        if (tile_type == sf::Color::Black || tile_type == sf::Color::Blue)
-          walkable_tiles++;
-        if (tile_type == sf::Color::Red)
-          hazard_count++;
-        if (tile_type == sf::Color::Yellow)
-          collectible_count++;
-      }
-    }
+    sf::Color color = leveldom.getPixel(i,13);
+    if (color != sf::Color::Red
+        && color != sf::Color::Yellow
+        && color != sf::Color::Green
+        && color != sf::Color::White
+        && color != sf::Color::Black
+        && color != sf::Color::Blue)
+      return false;
   }
-  else
-    std::cout << "levelone punch card failure\n";
+  return true;
 }
 
-void Game::generateLevel() // generates level based on pixel colour and neighbouring pixels
+void Game::countTiles(sf::Image& level) // counts what tiles need to be created for the object pools
+{
+  for (int x_gen = 0; x_gen < tile_column; x_gen++)
+  {
+    for (int y_gen = 0; y_gen < tile_row; y_gen++)
+    {
+      sf::Color tile_type = level.getPixel(x_gen, y_gen);
+      if (tile_type == sf::Color::Black || tile_type == sf::Color::Blue)
+        walkable_tiles++;
+      if (tile_type == sf::Color::Red)
+        hazard_count++;
+      if (tile_type == sf::Color::Yellow)
+        collectible_count++;
+    }
+  }
+}
+
+void Game::generateLevel(sf::Image& level) // generates level based on pixel colour and neighbouring pixels
 {
   int walkable_accum = 0;
   int hazard_accum = 0;
@@ -355,7 +366,7 @@ void Game::generateLevel() // generates level based on pixel colour and neighbou
   {
     for (int y_gen = 0; y_gen < tile_row; y_gen++)
     {
-      tile_type = levelone.getPixel(x_gen, y_gen);
+      tile_type = level.getPixel(x_gen, y_gen);
       if (tile_type == sf::Color::Black)
       {
         platform[walkable_accum]->getSprite()->setPosition(
@@ -380,7 +391,7 @@ void Game::generateLevel() // generates level based on pixel colour and neighbou
         hazard[hazard_accum]->getSprite()->setPosition(
           x_gen * hazard[hazard_accum]->getSprite()->getGlobalBounds().width,
           y_gen * hazard[hazard_accum]->getSprite()->getGlobalBounds().height);
-        tile_type = levelone.getPixel(x_gen - 1, y_gen);
+        tile_type = level.getPixel(x_gen - 1, y_gen);
         if (tile_type == sf::Color::Black)
         {
           hazard[hazard_accum]->initLeftTexture();
@@ -388,7 +399,7 @@ void Game::generateLevel() // generates level based on pixel colour and neighbou
           hazard_accum++;
           continue;
         }
-        tile_type = levelone.getPixel(x_gen + 1, y_gen);
+        tile_type = level.getPixel(x_gen + 1, y_gen);
         if (tile_type == sf::Color::Black)
         {
           hazard[hazard_accum]->initLeftTexture();

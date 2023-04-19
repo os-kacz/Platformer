@@ -31,6 +31,8 @@ class Game
   int current_collectibles = 0;
   sf::RenderWindow& window;
   sf::Image levelone;
+  sf::Image leveltwo;
+  sf::Image leveldom;
   Interface interface;
   Player player;
   Platform* platform[120];
@@ -42,10 +44,11 @@ class Game
   void playerPlatformCollision(Platform& f_platform);
   void playerHazardCollision(Hazard& f_hazard);
   void windowCollision();
-  bool calibratePunchCard();
-  void countTiles();
+  bool calibrateLevelOne();
+  bool calibrateLevelDom();
+  void countTiles(sf::Image& level);
   int spawn_tile;
-  void generateLevel();
+  void generateLevel(sf::Image& level);
 };
 
 #endif // PLATFORMER_GAME_H

@@ -41,7 +41,7 @@ class Player : public GameObject
   float jump_power = 5;
   float terminal_velocity = 4;
   bool played = false;
-  bool texture_flip = true;
+  bool texture_swap       = true;
   void checkJump();
   void jumping();
   void falling();
