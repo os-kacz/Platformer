@@ -295,15 +295,12 @@ void Game::windowCollision()
       player.playCollideSFX(Collision::Type::NONE);
 
       player.on_ground = false;
-      // YEP, THIS ONE LINE JUST MADE 30% OF MY EFFORTS REDUNDANT
-      // had difficulty detecting when player walked off a platform, this line solved that issue
-      // keeping comment because it's funny
       break;
     }
   }
 }
 
-bool Game::calibrateLevelOne() // reads calibration strip to check if colours are readable
+bool Game::calibrateLevelOne() // loads level image and reads colour calibration strip
 {
   levelone.loadFromFile("Data/Images/levelone.png");
   current_level = &levelone;
@@ -321,7 +318,7 @@ bool Game::calibrateLevelOne() // reads calibration strip to check if colours ar
   return true;
 }
 
-bool Game::calibrateLevelDom() // a level my friend made for me
+bool Game::calibrateLevelDom() // level created by dominic kirkwood
 {
   leveldom.loadFromFile("Data/Images/leveldom.png");
   current_level = &leveldom;
@@ -339,7 +336,7 @@ bool Game::calibrateLevelDom() // a level my friend made for me
   return true;
 }
 
-bool Game::calibrateLevelStep() // a level another friend made for me
+bool Game::calibrateLevelStep() // level created by stephen weston
 {
   levelstep.loadFromFile("Data/Images/levelstep.png");
   current_level = &levelstep;
