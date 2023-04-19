@@ -4,23 +4,7 @@
 Game::Game(sf::RenderWindow& game_window) : window(game_window), player(window), interface(window, camera),
   camera(player, window)
 {
-  calibrateLevelDom();
-  countTiles(leveldom);
-  for (int i = 0; i < walkable_tiles; i++)
-  {
-    platform[i] = new Platform;
-    platform[i]->initPlatform();
-  }
-  for (int j = 0; j < hazard_count; j++)
-  {
-    hazard[j] = new Hazard;
-    hazard[j]->initHazard();
-  }
-  for (int k = 0; k < collectible_count; k++)
-  {
-    collectible[k] = new Collectible;
-    collectible[k]->initCollectible();
-  }
+
 }
 
 Game::~Game()
@@ -44,13 +28,13 @@ Game::~Game()
 
 bool Game::init()
 {
-  std::cout << "tiles placed: " << walkable_tiles << "/120" << std::endl;
-  std::cout << "hazards: " << hazard_count << "/20" << std::endl;
-  std::cout << "collectibles: " << collectible_count << "/10" << std::endl;
   gamestate = MAINMENU;
   if (interface.initText() && player.initPlayer())
   {
-    generateLevel(leveldom);
+    calibrateLevelOne();
+    countTiles(*current_level);
+    allocateObjectPools();
+    generateLevel(*current_level);
     return true;
   }
   else
@@ -143,6 +127,22 @@ void Game::render()
 
 void Game::keyPressed(sf::Event event)
 {
+  if (event.key.code == sf::Keyboard::Num1)
+  {
+    level_choice = 1;
+    changeLevel();
+  }
+  if (event.key.code == sf::Keyboard::Num2)
+  {
+    level_choice = 2;
+    changeLevel();
+  }
+  if (event.key.code == sf::Keyboard::Num3)
+  {
+    level_choice = 3;
+    changeLevel();
+  }
+
   if (event.key.code == sf::Keyboard::Enter && gamestate != PLAYGAME)
     restartGame();
 
@@ -167,6 +167,7 @@ void Game::restartGame()
   for (int i = 0; i < collectible_count; i++)
     collectible[i]->visible = true;
   player.health = 4;
+  player.direction.x = 0;
   current_collectibles = 0;
   interface.score.setString(
     "Score: " + std::to_string(current_collectibles));
@@ -308,9 +309,10 @@ void Game::windowCollision()
 bool Game::calibrateLevelOne() // reads calibration strip to check if colours are readable
 {
   levelone.loadFromFile("Data/Images/levelone.png");
+  current_level = &levelone;
   for (int i = 0; i < 6; i++)
   {
-    sf::Color color = levelone.getPixel(i,13);
+    sf::Color color = current_level->getPixel(i,13);
     if (color != sf::Color::Red
         && color != sf::Color::Yellow
         && color != sf::Color::Green
@@ -322,12 +324,31 @@ bool Game::calibrateLevelOne() // reads calibration strip to check if colours ar
   return true;
 }
 
-bool Game::calibrateLevelDom()
+bool Game::calibrateLevelDom() // a level my friend made for me
 {
   leveldom.loadFromFile("Data/Images/leveldom.png");
+  current_level = &leveldom;
   for (int i = 0; i < 6; i++)
   {
-    sf::Color color = leveldom.getPixel(i,13);
+    sf::Color color = current_level->getPixel(i,13);
+    if (color != sf::Color::Red
+        && color != sf::Color::Yellow
+        && color != sf::Color::Green
+        && color != sf::Color::White
+        && color != sf::Color::Black
+        && color != sf::Color::Blue)
+      return false;
+  }
+  return true;
+}
+
+bool Game::calibrateLevelStep() // a level another friend made for me
+{
+  levelstep.loadFromFile("Data/Images/levelstep.png");
+  current_level = &levelstep;
+  for (int i = 0; i < 6; i++)
+  {
+    sf::Color color = current_level->getPixel(i,13);
     if (color != sf::Color::Red
         && color != sf::Color::Yellow
         && color != sf::Color::Green
@@ -424,4 +445,43 @@ void Game::generateLevel(sf::Image& level) // generates level based on pixel col
       }
     }
   }
+}
+void Game::allocateObjectPools()
+{
+  for (int i = 0; i < walkable_tiles; i++)
+  {
+    platform[i] = new Platform;
+    platform[i]->initPlatform();
+  }
+  for (int j = 0; j < hazard_count; j++)
+  {
+    hazard[j] = new Hazard;
+    hazard[j]->initHazard();
+  }
+  for (int k = 0; k < collectible_count; k++)
+  {
+    collectible[k] = new Collectible;
+    collectible[k]->initCollectible();
+  }
+}
+
+void Game::changeLevel()
+{
+  walkable_tiles = 0;
+  hazard_count = 0;
+  collectible_count = 0;
+  if (level_choice == 1)
+    calibrateLevelOne();
+  if (level_choice == 2)
+    calibrateLevelDom();
+  if (level_choice == 3)
+    calibrateLevelStep();
+  countTiles(*current_level);
+  allocateObjectPools();
+  generateLevel(*current_level);
+  restartGame();
+  std::cout << "loaded level: " << std::to_string(level_choice) << std::endl;
+  std::cout << "tiles placed: " << walkable_tiles << "/120\n";
+  std::cout << "hazards: " << hazard_count << "/20\n";
+  std::cout << "collectibles: " << collectible_count << "/10\n";
 }
