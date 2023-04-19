@@ -31,10 +31,7 @@ bool Game::init()
   gamestate = MAINMENU;
   if (interface.initText() && player.initPlayer())
   {
-    calibrateLevelOne();
-    countTiles(*current_level);
-    allocateObjectPools();
-    generateLevel(*current_level);
+    changeLevel();
     return true;
   }
   else
