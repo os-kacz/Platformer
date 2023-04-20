@@ -50,7 +50,7 @@ bool Player::initPlayer()
   hurt_sfx.setBuffer(hurt_buffer);
 
   getSprite()->setPosition(500,window.getSize().y - 500);
-  direction.y = gravity;
+  //direction.y = gravity;
   getSprite()->setScale(1.2,1.2);
   initialiseSprite(player_texture_1,
                           "Data/Images/kenney_pixelplatformer/Characters/character_0000.png");

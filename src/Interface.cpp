@@ -16,12 +16,12 @@ bool Interface::initText()
 
   main_text.setString("Press Enter to play the Platformer\n\n- 'A' & 'D' to move sideways\n- 'Space' to jump"
                       "\n- Move into walls to grip them\n- Collect the gems, avoid pits and spikes!"
-                      "\n\nPress '1', '2', or '3' to switch levels");
+                      "\n\nPress '1', '2', or '3' to switch levels\n'ESC' to quit at any time");
   main_text.setFont(font);
   main_text.setCharacterSize(35);
   main_text.setFillColor(sf::Color::White);
 
-  score.setString("Score: 0");
+  score.setString("(Esc to quit at any time)");
   score.setFont(font);
   score.setCharacterSize(25);
   score.setFillColor(sf::Color::White);
@@ -43,5 +43,5 @@ void Interface::textInView()
     camera.getCamera()->getCenter().y - (camera.getCamera()->getSize().y / 2) + 30);
   main_text.setPosition(
     camera.getCamera()->getCenter().x - (main_text.getGlobalBounds().width / 2),
-    camera.getCamera()->getCenter().y - (main_text.getGlobalBounds().height / 0.9));
+    camera.getCamera()->getCenter().y - (main_text.getGlobalBounds().height));
 }

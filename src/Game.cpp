@@ -28,10 +28,10 @@ Game::~Game()
 
 bool Game::init()
 {
-  gamestate = MAINMENU;
   if (interface.initText() && player.initPlayer())
   {
     changeLevel();
+    gamestate = MAINMENU;
     return true;
   }
   else
