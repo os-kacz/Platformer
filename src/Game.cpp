@@ -53,16 +53,19 @@ void Game::update(float dt)
     {
       if (platform[i]->visible)
         playerPlatformCollision(*platform[i]);
+      // for every walkable tile, do a player-to-platform collision check with every platform (tile, im not consistent with naming)
     }
     for (int j = 0; j < hazard_count; j++)
     {
       playerHazardCollision(*hazard[j]);
+      // check all dangerous tiles if player is colliding with them
     }
     for (int k = 0; k < collectible_count; k++)
     {
       if (collision.gameobjectCheck(player, *collectible[k]) !=
         Collision::Type::NONE && collectible[k]->visible)
       {
+        // check if the player has collided with any of the uncollected collectibles
         collectible[k]->visible = false;
         current_collectibles++;
         player.playGemSFX();
@@ -177,9 +180,12 @@ void Game::restartGame()
 
 void Game::playerPlatformCollision(Platform& f_platform)
 {
+  // i think a lot of these "update bounding boxes" are redundant, but im too scared to get rid of one if it breaks the game
   f_platform.updateBoundingBox();
   switch (collision.gameobjectCheck(player, f_platform))
   {
+      // switch statements are goated. it checks all possible outcomes when it comes to collisions. top, bottom, left, right or none!
+      // keep in mind that this is in a loop, so it constantly checks and applies its code as the game is running
       // allows player to walk on top of platforms and jump again
     case (Collision::Type::TOP):
     {
@@ -192,6 +198,10 @@ void Game::playerPlatformCollision(Platform& f_platform)
           f_platform.top_l_y - player.getSprite()->getGlobalBounds().height);
         player.playCollideSFX(Collision::Type::TOP);
       }
+      // if the collision is on the top of the tile, and the player is currently in the air:
+      // (seems contradictory, but it makes sense. after jumping, you are in the air until you actually collide with the tile)
+      // mark the player as on the ground, set direction.y to 0 so they dont keep falling, then set their y coordinate
+      // to the top of the tile so they dont fall through.
       break;
     }
       // stops player jumping and makes them fall down
@@ -202,6 +212,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
       player.getSprite()->setPosition(player.top_l_x, f_platform.bot_l_y);
       player.playCollideSFX(Collision::Type::BOTTOM);
       break;
+      // if the player hits the bottom of a tile: make them stop jumping, kill their momentum (with direction.y = 0), and play funky sfx
     }
       // left and right case allow players to grip onto blocks and slowly slide down
     case (Collision::Type::LEFT):
@@ -215,10 +226,13 @@ void Game::playerPlatformCollision(Platform& f_platform)
         player.is_jumping  = false;
         player.direction.y = 0.3;
       }
+      // if the player collides with the left of a tile: set their position to the side of the tile, and play funky sfx.
+      // if then the player is still trying to move after hitting the tile, make them not jump anymore (falling) and make them slowly slide down
       break;
     }
     case (Collision::Type::RIGHT):
     {
+      // same as above but other way
       player.getSprite()->setPosition(f_platform.top_r_x, player.top_l_y);
       player.playCollideSFX(Collision::Type::RIGHT);
       if (player.direction.x < 0 && player.direction.y > 0)
@@ -230,6 +244,7 @@ void Game::playerPlatformCollision(Platform& f_platform)
     }
     case (Collision::Type::NONE):
     {
+      // if theres no collision, do nothing!
       break;
     }
   }
@@ -239,6 +254,7 @@ void Game::playerHazardCollision(Hazard& f_hazard)
 {
   f_hazard.updateBoundingBox();
   if (collision.gameobjectCheck(player, f_hazard) != Collision::Type::NONE)
+    // if the collision between the player and spike is NOT NONE (there is a collision)
   {
     // considers from what direction the player is coming from and when the player looks like when they physically touch the spike
     if (f_hazard.facing_left && !f_hazard.on_ground
@@ -247,6 +263,7 @@ void Game::playerHazardCollision(Hazard& f_hazard)
         && player.top_l_x < f_hazard.top_r_x - (f_hazard.getSprite()->getGlobalBounds().width / 2)
         ||f_hazard.on_ground && player.bot_l_y > f_hazard.top_l_y + (f_hazard.getSprite()->getGlobalBounds().height / 2))
     {
+      // it looks complicated but its just to cut the hitbox of the spike in half so you dont die by hitting air near the spike
       player.health--;
       player.getSprite()->setPosition(
         platform[spawn_tile]->getSprite()->getPosition().x,
@@ -261,6 +278,7 @@ void Game::windowCollision()
 {
   switch (collision.windowCheck(player, window))
   {
+      // essentially the same as playerPlatformCollision but for the window and less stuff happens
     case Collision::Type::TOP:
     {
       player.is_jumping = false;

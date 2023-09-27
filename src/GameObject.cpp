@@ -31,8 +31,9 @@ sf::Sprite* GameObject::getSprite()
 
 void GameObject::updateBoundingBox()
 {
-  top_l_x = sprite->getPosition().x;
-  top_r_x = top_l_x + sprite->getGlobalBounds().width;
-  top_l_y = sprite->getPosition().y;
-  bot_l_y = top_l_y + sprite->getGlobalBounds().height;
+  // used to get the latest position of a sprite and put it into easy-to-understand variables for later
+  top_l_x = sprite->getPosition().x; // top left x coordinate
+  top_r_x = top_l_x + sprite->getGlobalBounds().width; // top right x coordinate
+  top_l_y = sprite->getPosition().y; // top left y coordinate
+  bot_l_y = top_l_y + sprite->getGlobalBounds().height; // bottom left y coordinate
 }

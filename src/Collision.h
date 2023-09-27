@@ -8,7 +8,8 @@ class Collision
  public:
   Collision();
   ~Collision();
-  enum class Type
+  enum class Type // we use an enum because it can return multiple different states that we can use later
+    // its a class so we can use it multiple times. it saves time!
   { TOP,
     BOTTOM,
     LEFT,

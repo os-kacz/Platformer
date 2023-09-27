@@ -39,7 +39,7 @@ class Game
   Platform* platform[120];
   Hazard* hazard[20];
   Collectible* collectible[10];
-  Collision collision;
+  Collision collision; // collision class! very helpful, read collision.h and collision.cpp
   Camera camera;
   void restartGame();
   void playerPlatformCollision(Platform& f_platform);
